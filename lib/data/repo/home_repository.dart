@@ -2,7 +2,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdv2_showcase_mobile/domain/entity/category.dart';
 import 'package:tdv2_showcase_mobile/domain/entity/product.dart';
@@ -10,7 +10,6 @@ import 'package:tdv2_showcase_mobile/domain/entity/promo.dart';
 import 'package:tdv2_showcase_mobile/domain/entity/tenant.dart';
 import 'package:tdv2_showcase_mobile/domain/entity/validate_result.dart';
 import 'package:tdv2_showcase_mobile/domain/repo/home_repository.dart';
-import 'package:http/http.dart' as http;
 
 class DataHomeRepository implements HomeRepository {
   
