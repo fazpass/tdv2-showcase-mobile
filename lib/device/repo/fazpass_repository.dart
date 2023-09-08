@@ -9,14 +9,17 @@ class DeviceFazpassRepository implements FazpassRepository {
   factory DeviceFazpassRepository() => _instance;
 
   @override
-  Future<void> initialize(List<dynamic> sensitiveData) async {
-    await Fazpass.instance.init('tdv2_showcase_public.pub');
-    await Fazpass.instance.enableSelected([]);
-    return;
+  Future<void> initialize(String assetName) async {
+    await Fazpass.instance.init(assetName);
   }
 
   @override
   Future<String> generateMeta() async {
-    return await Fazpass.instance.generateMeta() ?? '';
+    return await Fazpass.instance.generateMeta();
+  }
+
+  @override
+  Future<void> enableSelected(List<SensitiveData> sensitiveData) async {
+    await Fazpass.instance.enableSelected(sensitiveData);
   }
 }

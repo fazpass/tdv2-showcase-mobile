@@ -22,75 +22,77 @@ class LoginViewState extends ViewState<LoginView, LoginController> {
   @override
   Widget get view => Scaffold(
     key: globalKey,
-    resizeToAvoidBottomInset: false,
     body: Stack(
       children: [
-        Positioned.fromRelativeRect(
-          rect: const RelativeRect.fromLTRB(-80, -80, -80, -80),
-          child: Image.asset(AppAssets.backgroundImage),
+        Positioned.fill(
+          child: Image.asset(
+            AppAssets.backgroundImage,
+            fit: BoxFit.cover,
+          ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0).copyWith(top: 24),
-          child: ListView(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 18.0),
-                child: Center(
-                  child: Text(
-                    'Marketplacebo',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.displayLarge,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 18.0),
-                child: Text(
-                  'Start browsing our market and get the best deal you could ever think of!',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.displayMedium,
-                ),
-              ),
-              ControlledWidgetBuilder<LoginController>(
+        SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Center(
+              child: ControlledWidgetBuilder<LoginController>(
                 builder: (context, controller) => Card(
                   color: const Color.fromRGBO(255, 255, 255, .9),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 16.0),
-                          child: Text(
-                            'Join Us!',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 28.0,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 18.0),
+                            child: Center(
+                              child: Text(
+                                'E-Wallet',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.displayLarge,
+                              ),
                             ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 24.0),
-                          child: MainTextField(
-                            controller: _phoneController,
-                            label: 'Phone Number',
-                            keyboardType: TextInputType.phone,
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 18.0),
+                            child: Text(
+                              'Aplikasi ini adalah aplikasi mockup untuk mendemonstrasikan Trusted Device SDK V2.',
+                              textAlign: TextAlign.center,
+                            ),
                           ),
-                        ),
-                        PrimaryElevatedButton(
-                          onClick: controller.isLoading
-                              ? null
-                              : () => controller.login(_phoneController.text),
-                          label: 'Sign me in!',
-                        ),
-                      ],
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 16.0),
+                            child: Text(
+                              'Join Us!',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 28.0,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 24.0),
+                            child: MainTextField(
+                              controller: _phoneController,
+                              label: 'Phone Number',
+                              keyboardType: TextInputType.phone,
+                            ),
+                          ),
+                          PrimaryElevatedButton(
+                            onClick: controller.isLoading
+                                ? null
+                                : () => controller.login(_phoneController.text),
+                            label: 'Sign me in!',
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ],

@@ -14,13 +14,13 @@ class ValidateOtpController extends Controller {
     isLoading = true;
     refreshUI();
 
-    presenter.validateOtp(phoneNumber, meta, otpId, otp);
+    presenter.validateOtpThenEnroll(phoneNumber, meta, otpId, otp);
   }
 
   @override
   void initListeners() {
-    presenter.validateOtpOnNext = _validateOtpOnNext;
-    presenter.validateOtpOnError = _validateOtpOnError;
+    presenter.validateOtpThenEnrollOnNext = _validateOtpOnNext;
+    presenter.validateOtpThenEnrollOnError = _validateOtpOnError;
   }
 
   _validateOtpOnNext(bool isSuccess) {

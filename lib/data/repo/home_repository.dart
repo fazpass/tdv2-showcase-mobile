@@ -16,9 +16,15 @@ class DataHomeRepository implements HomeRepository {
   static const _instance = DataHomeRepository._internal();
   const DataHomeRepository._internal();
   factory DataHomeRepository() => _instance;
+
+  @override
+  Future<bool> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.clear();
+  }
   
   @override
-  Future<bool> logout(String meta) async {
+  Future<bool> removeDevice(String meta) async {
     final prefs = await SharedPreferences.getInstance();
     final phoneNumber = prefs.getString('phone');
     final fazpassId = prefs.getString('fazpass_id');
@@ -68,6 +74,56 @@ class DataHomeRepository implements HomeRepository {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return ValidateResult(data['data']['score'], data['data']['risk_level']);
+    }
+
+    throw HttpException(response.body, uri: uri);
+  }
+
+  @override
+  Future<String> getPaymentUrl(int topupAmount) async {
+    Map data = {
+      "transaction_details": {
+        "order_id": 'id-${DateTime.now().millisecondsSinceEpoch}',
+        "gross_amount": topupAmount.toDouble(),
+      },
+      "item_details": [
+        {
+          "id": 1,
+          "price": topupAmount.toDouble(),
+          "quantity": 1,
+          "name": 'Topup',
+          "merchant_name": "Marketplacebo"
+        }
+      ],
+      "customer_details": {
+        "first_name": 'User',
+        "last_name": '',
+        "email": 'user@mail.com',
+        "phone": '0812345678890',
+      },
+      "callbacks": {
+      },
+      "gopay": {
+        "enable_callback": true,
+      }
+    };
+
+    Codec<String, String> stringToBase64 = utf8.fuse(base64);
+    Uri uri = Uri.parse('https://app.sandbox.midtrans.com/snap/v1/transactions');
+    final response = await http.post(
+        uri,
+        headers: <String, String>{
+          'Accept': 'application/json',
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization':' Basic ${stringToBase64.encode('SB-Mid-server-Hxn-SSdJ5J2OTr4UBJ04eLa6:')}'
+        },
+        body: jsonEncode(data)
+    );
+
+    print(response.statusCode);
+    print(response.body);
+    if (response.statusCode == 201) {
+      return jsonDecode(response.body)['redirect_url'];
     }
 
     throw HttpException(response.body, uri: uri);

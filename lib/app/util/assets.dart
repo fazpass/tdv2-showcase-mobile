@@ -1,6 +1,6 @@
 
 class AppAssets {
-  static const imagePrefix = 'assets/img';
+  static const _imagePrefix = 'assets/img';
 
-  static const backgroundImage = '$imagePrefix/home_bg.png';
+  static const backgroundImage = '$_imagePrefix/home_bg.jpeg';
 }

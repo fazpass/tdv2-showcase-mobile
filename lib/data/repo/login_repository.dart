@@ -13,8 +13,8 @@ class DataLoginRepository implements LoginRepository {
   factory DataLoginRepository() => _instance;
 
   @override
-  Future<String> login(String phoneNumber, String meta) async {
-    final uri = Uri.parse('https://seamless-pub.stg.fazpas.com/login');
+  Future<bool> login(String phoneNumber, String meta) async {
+    final uri = Uri.parse('https://seamless-pub.stg.fazpas.com/check');
     final response = await http.post(
       uri,
       headers: {
@@ -28,7 +28,37 @@ class DataLoginRepository implements LoginRepository {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      print(data);
+      final fazpassId = data['data']['fazpass_id'] as String;
+
+      if (fazpassId.isNotEmpty) {
+        final prefs = await SharedPreferences.getInstance();
+        prefs.setString('phone', phoneNumber);
+        prefs.setString('fazpass_id', fazpassId);
+        prefs.setBool('is_logged_in', true);
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    return false;
+  }
+
+  @override
+  Future<String> requestOtp(String phoneNumber) async {
+    final uri = Uri.parse('https://seamless-pub.stg.fazpas.com/request-otp');
+    final response = await http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        "phone": phoneNumber,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
       return data['data']['otp_id'];
     }
 
@@ -36,7 +66,7 @@ class DataLoginRepository implements LoginRepository {
   }
 
   @override
-  Future<bool> validateOtp(String phoneNumber, String meta, String otpId, String otp) async {
+  Future<bool> validateOtpThenEnroll(String phoneNumber, String meta, String otpId, String otp) async {
     final uri = Uri.parse('https://seamless-pub.stg.fazpas.com/validate-otp');
     final response = await http.post(
       uri,
@@ -44,27 +74,37 @@ class DataLoginRepository implements LoginRepository {
         'Content-Type': 'application/json',
       },
       body: jsonEncode({
-        "phone": phoneNumber,
-        "meta": meta,
         "otp": otp,
         "otp_id": otpId
       }),
     );
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final status = data['status'] as bool;
+      final enrollUri = Uri.parse('https://seamless-pub.stg.fazpas.com/enroll');
+      final enrollResponse = await http.post(
+        enrollUri,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "phone": phoneNumber,
+          "meta": meta
+        }),
+      );
 
-      if (status) {
+      if (enrollResponse.statusCode == 200) {
+        final data = jsonDecode(enrollResponse.body);
         final fazpassId = data['data']['fazpass_id'];
 
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('is_logged_in', true);
         await prefs.setString('phone', phoneNumber);
         await prefs.setString('fazpass_id', fazpassId);
-      }
+        await prefs.setBool('is_logged_in', true);
 
-      return status;
+        return true;
+      }
+    } else if (response.statusCode == 400) {
+      return false;
     }
 
     throw HttpException(response.body, uri: uri);

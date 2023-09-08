@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
+import 'package:flutter_trusted_device_v2/flutter_trusted_device_v2.dart';
 import 'package:tdv2_showcase_mobile/app/page/login/login_presenter.dart';
 import 'package:tdv2_showcase_mobile/app/router.dart';
 import 'package:tdv2_showcase_mobile/app/sheet/validate_otp/validate_otp_view.dart';
@@ -25,7 +26,7 @@ class LoginController extends Controller {
   void onInitState() {
     super.onInitState();
     WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback((timeStamp) {
-      _presenter.initialize();
+      _presenter.initialize('tdv2_showcase_public.pub', []);
     });
   }
 
@@ -43,19 +44,27 @@ class LoginController extends Controller {
 
   _initializeOnError(e) {}
 
-  _loginOnNext(String otpId, String meta) {
+  _loginOnNext(bool canLoginInstantly, String? otpId, String? meta) {
     isLoading = false;
     refreshUI();
 
-    _showOtpValidationSheet(otpId, meta);
+    if (canLoginInstantly) {
+      _navigateToHome();
+    } else {
+      _showOtpValidationSheet(otpId!, meta!);
+    }
   }
 
   _loginOnError(e) {
-    logger.severe(e);
-    print(e);
     isLoading = false;
     _tempPhoneNumber = null;
     refreshUI();
+
+    if (e is FazpassException) {
+      // TODO: handle error
+    } else {
+      print(e);
+    }
   }
 
   void _showOtpValidationSheet(String otpId, String meta) async {

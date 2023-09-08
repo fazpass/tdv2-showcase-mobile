@@ -2,12 +2,10 @@
 import 'package:flutter/material.dart' hide View;
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import 'package:tdv2_showcase_mobile/app/page/home/home_controller.dart';
-import 'package:tdv2_showcase_mobile/app/page/home/section/category_section.dart';
-import 'package:tdv2_showcase_mobile/app/page/home/section/product_section.dart';
-import 'package:tdv2_showcase_mobile/app/page/home/section/promo_section.dart';
-import 'package:tdv2_showcase_mobile/app/page/home/section/tenant_section.dart';
+import 'package:tdv2_showcase_mobile/app/page/home/ui/home_ui.dart';
+import 'package:tdv2_showcase_mobile/app/page/home/ui/profile_ui.dart';
+import 'package:tdv2_showcase_mobile/app/page/home/ui/topup_ui.dart';
 import 'package:tdv2_showcase_mobile/app/widget/primary_bottom_navbar.dart';
-import 'package:tdv2_showcase_mobile/app/widget/search_field.dart';
 import 'package:tdv2_showcase_mobile/data/repo/home_repository.dart';
 import 'package:tdv2_showcase_mobile/device/repo/fazpass_repository.dart';
 
@@ -22,6 +20,28 @@ class HomeViewState extends ViewState<HomeView, HomeController> {
   HomeViewState() : super(HomeController(DataHomeRepository(), DeviceFazpassRepository()));
 
   @override
+  Widget get view => Scaffold(
+    key: globalKey,
+    bottomNavigationBar: Builder(
+      builder: (context) => const PrimaryBottomNavigationBar()
+    ),
+    body: ControlledWidgetBuilder<HomeController>(
+      builder: (context, controller) {
+        switch (controller.pageIndex) {
+          case 1:
+            return const TopupUI();
+          case 2:
+            return const ProfileUI();
+          case 0:
+          default:
+            return const HomeUI();
+        }
+      },
+    ),
+  );
+
+  // old view
+  /*@override
   Widget get view {
     var promoAspectRatio = 3/1;
     var toolbarAndPromoHeight = MediaQuery.of(context).size.height/promoAspectRatio;
@@ -58,7 +78,7 @@ class HomeViewState extends ViewState<HomeView, HomeController> {
                     onSelected: (i) {
                       switch (i) {
                         case 0:
-                          controller.validate();
+                          controller.removeDevice();
                           break;
                         case 1:
                           controller.logout();
@@ -68,7 +88,7 @@ class HomeViewState extends ViewState<HomeView, HomeController> {
                     itemBuilder: (c) => [
                       const PopupMenuItem(
                         value: 0,
-                        child: Text('Validate'),
+                        child: Text('Remove'),
                       ),
                       const PopupMenuItem(
                         value: 1,
@@ -107,5 +127,5 @@ class HomeViewState extends ViewState<HomeView, HomeController> {
         }
       ),
     );
-  }
+  }*/
 }

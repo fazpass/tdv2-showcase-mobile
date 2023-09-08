@@ -31,7 +31,7 @@ mixin MyTheme {
 
   TextTheme get textTheme => const TextTheme(
     displayLarge: TextStyle(
-      color: Colors.white,
+      color: Colors.black,
       fontFamily: 'JosefinSans',
       fontWeight: FontWeight.w700,
       fontSize: 40.0,

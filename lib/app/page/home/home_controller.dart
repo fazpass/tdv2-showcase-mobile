@@ -2,15 +2,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import 'package:tdv2_showcase_mobile/app/router.dart';
-import 'package:tdv2_showcase_mobile/app/sheet/validate/validate_view.dart';
 import 'package:tdv2_showcase_mobile/domain/entity/category.dart';
 import 'package:tdv2_showcase_mobile/domain/entity/product.dart';
 import 'package:tdv2_showcase_mobile/domain/entity/promo.dart';
 import 'package:tdv2_showcase_mobile/domain/entity/tenant.dart';
+import 'package:tdv2_showcase_mobile/app/sheet/topup/topup_view.dart';
 
 import 'home_presenter.dart';
 
 class HomeController extends Controller {
+
+  int pageIndex = 0;
+
+  int balanceAmount = 0;
+  int pickedAmount = 0;
 
   bool isLoadingPromos = true;
   List<Promo> promos = [];
@@ -25,23 +30,64 @@ class HomeController extends Controller {
   HomeController(homeRepo, fazpassRepo)
       : _presenter = HomePresenter(homeRepo, fazpassRepo);
 
-  void validate() {
-    showModalBottomSheet(
-      context: getContext(),
-      showDragHandle: true,
-      builder: (c) => const ValidateSheet(),
-    );
+  void changePageIndex(int index) {
+    pageIndex = index;
+    refreshUI();
   }
 
-  void logout() {
-    showDialog(
+  void changePickedAmount(int amount) {
+    pickedAmount = amount;
+    refreshUI();
+  }
+
+  void topup() async {
+    final paymentConfirmed = await showModalBottomSheet(
       context: getContext(),
-      builder: (c) => const AlertDialog(
-        title: Text('Logging out...'),
-        content: SizedBox(height: 70, child: Center(child: CircularProgressIndicator())),
+      enableDrag: false,
+      isScrollControlled: true,
+      constraints: const BoxConstraints(maxHeight: 600),
+      builder: (c) => TopupSheet(topupAmount: pickedAmount),
+    );
+
+    if (paymentConfirmed) {
+      balanceAmount += pickedAmount;
+      refreshUI();
+    }
+  }
+
+  void removeDevice() async {
+    final confirmation = await showDialog(
+      context: getContext(),
+      builder: (c) => AlertDialog(
+        title: const Text('Remove Device'),
+        content: const Text('Are you sure you want to remove your device? After this, you will be logged out and have to input OTP again.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(c, false),
+            child: const Text('NO'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(c, true),
+            child: const Text('YES'),
+          ),
+        ],
       ),
     );
 
+    if (confirmation) {
+      showDialog(
+        context: getContext(),
+        builder: (c) => const AlertDialog(
+          title: Text('Removing device & Logging out...'),
+          content: SizedBox(height: 70, child: Center(child: CircularProgressIndicator())),
+        ),
+      );
+
+      _presenter.removeDevice();
+    }
+  }
+
+  void logout() {
     _presenter.logout();
   }
 
@@ -61,6 +107,8 @@ class HomeController extends Controller {
     _presenter.getCategoriesOnError = _getCategoriesOnError;
     _presenter.getTenantsOnNext = _getTenantsOnNext;
     _presenter.getTenantsOnError = _getTenantsOnError;
+    _presenter.removeDeviceOnNext = _removeDeviceOnNext;
+    _presenter.removeDeviceOnError = _removeDeviceOnError;
     _presenter.logoutOnNext = _logoutOnNext;
     _presenter.logoutOnError = _logoutOnError;
   }
@@ -113,8 +161,19 @@ class HomeController extends Controller {
     refreshUI();
   }
 
-  _logoutOnNext(bool isSuccess) {
+  _removeDeviceOnNext(bool isSuccess) {
     Navigator.pop(getContext());
+    if (isSuccess) {
+      Navigator.popAndPushNamed(getContext(), AppPageRouter.login);
+    }
+  }
+
+  _removeDeviceOnError(e) {
+    logger.severe(e);
+    Navigator.pop(getContext());
+  }
+
+  _logoutOnNext(bool isSuccess) {
     if (isSuccess) {
       Navigator.popAndPushNamed(getContext(), AppPageRouter.login);
     }
@@ -122,6 +181,5 @@ class HomeController extends Controller {
 
   _logoutOnError(e) {
     logger.severe(e);
-    Navigator.pop(getContext());
   }
 }

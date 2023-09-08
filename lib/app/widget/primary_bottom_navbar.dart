@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
+import 'package:tdv2_showcase_mobile/app/page/home/home_controller.dart';
 
 class PrimaryBottomNavigationBar extends StatefulWidget {
 
@@ -12,20 +14,29 @@ class _PrimaryBottomNavigationBarState extends State<PrimaryBottomNavigationBar>
 
   @override
   Widget build(BuildContext context) {
+    HomeController controller = FlutterCleanArchitecture.getController(context);
     return BottomNavigationBar(
       showUnselectedLabels: true,
-      currentIndex: 0,
+      currentIndex: controller.pageIndex,
       type: BottomNavigationBarType.fixed,
       selectedItemColor: Colors.deepOrange,
       unselectedItemColor: Colors.grey.withOpacity(0.38),
       backgroundColor: Colors.white,
       elevation: 8.0,
-      items: [
-        const BottomNavigationBarItem(
+      onTap: (index) {
+        controller.changePageIndex(index);
+      },
+      items: const [
+        BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',
         ),
         BottomNavigationBarItem(
+          icon: Icon(Icons.payment),
+          label: 'Topup',
+        ),
+        // old code
+        /*BottomNavigationBarItem(
           icon: Stack(
             children: [
               const Icon(Icons.shopping_cart),
@@ -57,8 +68,8 @@ class _PrimaryBottomNavigationBarState extends State<PrimaryBottomNavigationBar>
             ],
           ),
           label: 'Order',
-        ),
-        const BottomNavigationBarItem(
+        ),*/
+        BottomNavigationBarItem(
           icon: Icon(Icons.person),
           label: 'Profile',
         ),

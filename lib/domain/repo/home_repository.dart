@@ -11,7 +11,11 @@ abstract interface class HomeRepository {
   Future<ValidateResult> validate(String meta);
   /// { "status": true, "code": 200 }
   /// return status
-  Future<bool> logout(String meta);
+  Future<bool> removeDevice(String meta);
+
+  Future<bool> logout();
+
+  Future<String> getPaymentUrl(int topupAmount);
 
   Future<List<Promo>> getPromos();
   Future<List<Product>> getProducts();
