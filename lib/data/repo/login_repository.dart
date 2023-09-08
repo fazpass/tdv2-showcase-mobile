@@ -28,17 +28,18 @@ class DataLoginRepository implements LoginRepository {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
+      final status = data['data']['status'] as bool;
       final fazpassId = data['data']['fazpass_id'] as String;
 
-      if (fazpassId.isNotEmpty) {
+      if (status && fazpassId.isNotEmpty) {
         final prefs = await SharedPreferences.getInstance();
         prefs.setString('phone', phoneNumber);
         prefs.setString('fazpass_id', fazpassId);
         prefs.setBool('is_logged_in', true);
         return true;
-      } else {
-        return false;
       }
+
+      return false;
     }
 
     return false;
