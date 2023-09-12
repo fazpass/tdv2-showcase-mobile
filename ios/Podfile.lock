@@ -1,0 +1,46 @@
+PODS:
+  - DeviceKit (5.0.0)
+  - Flutter (1.0.0)
+  - flutter_trusted_device_v2 (0.0.1):
+    - Flutter
+    - ios-trusted-device-v2
+  - ios-trusted-device-v2 (1.0.0):
+    - DeviceKit
+  - shared_preferences_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - webview_flutter_wkwebview (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - flutter_trusted_device_v2 (from `.symlinks/plugins/flutter_trusted_device_v2/ios`)
+  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+  - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/ios`)
+
+SPEC REPOS:
+  trunk:
+    - DeviceKit
+    - ios-trusted-device-v2
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  flutter_trusted_device_v2:
+    :path: ".symlinks/plugins/flutter_trusted_device_v2/ios"
+  shared_preferences_foundation:
+    :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
+  webview_flutter_wkwebview:
+    :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
+
+SPEC CHECKSUMS:
+  DeviceKit: 0fd016a2cb67aca17c33dc23171cac270131eb88
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  flutter_trusted_device_v2: 5a9f30db5cc23f488da94df21e3fed9d7b18d21d
+  ios-trusted-device-v2: 3a908879c1e730ab43203bc6d3853a84a89181a5
+  shared_preferences_foundation: 5b919d13b803cadd15ed2dc053125c68730e5126
+  webview_flutter_wkwebview: 2e2d318f21a5e036e2c3f26171342e95908bd60a
+
+PODFILE CHECKSUM: 70d9d25280d0dd177a5f637cdb0f0b0b12c6a189
+
+COCOAPODS: 1.12.0
