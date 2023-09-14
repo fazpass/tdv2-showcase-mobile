@@ -112,6 +112,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  go_router:
+    dependency: transitive
+    description:
+      name: go_router
+      sha256: "5668e6d3dbcb2d0dfa25f7567554b88c57e1e3f3c440b672b24d4a9477017d5b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "10.1.2"
   http:
     dependency: "direct main"
     description:
@@ -192,6 +200,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  newrelic_mobile:
+    dependency: "direct main"
+    description:
+      name: newrelic_mobile
+      sha256: c71b765a221b54effd18f57fb193748d12c97bccb3c2d5919d9c92b672e52b98
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
   path:
     dependency: transitive
     description:
@@ -401,10 +417,10 @@ packages:
     dependency: transitive
     description:
       name: webview_flutter_android
-      sha256: "0d8f5ac96a155e672129bf94c7abf625de01241d44d269dbaff083f1b4deb1aa"
+      sha256: "9427774649fd3c8b7ff53523051395d13aed2ca355822b822e6493d79f5fc05a"
       url: "https://pub.dev"
     source: hosted
-    version: "3.9.5"
+    version: "3.10.0"
   webview_flutter_platform_interface:
     dependency: transitive
     description:

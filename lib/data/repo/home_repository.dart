@@ -1,9 +1,8 @@
 
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tdv2_showcase_mobile/data/util/http_request.dart';
 import 'package:tdv2_showcase_mobile/domain/entity/category.dart';
 import 'package:tdv2_showcase_mobile/domain/entity/product.dart';
 import 'package:tdv2_showcase_mobile/domain/entity/promo.dart';
@@ -29,27 +28,12 @@ class DataHomeRepository implements HomeRepository {
     final phoneNumber = prefs.getString('phone');
     final fazpassId = prefs.getString('fazpass_id');
 
-    final uri = Uri.parse('https://seamless-pub.stg.fazpas.com/logout');
-    final response = await http.post(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        "phone": phoneNumber,
-        "meta": meta,
-        "fazpass_id": fazpassId,
-      }),
-    );
+    final request = HttpRequestUtil(APIEndpoint.logout);
+    final response = await request([phoneNumber, meta, fazpassId]);
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final status = data['status'] as bool;
-      if (status) await prefs.clear();
-      return status;
-    }
-
-    throw HttpException(response.body, uri: uri);
+    final status = response['status'] as bool;
+    if (status) await prefs.clear();
+    return status;
   }
 
   @override
@@ -58,75 +42,49 @@ class DataHomeRepository implements HomeRepository {
     final phoneNumber = prefs.getString('phone');
     final fazpassId = prefs.getString('fazpass_id');
 
-    final uri = Uri.parse('https://seamless-pub.stg.fazpas.com/validate-user');
-    final response = await http.post(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        "phone": phoneNumber,
-        "meta": meta,
-        "fazpass_id": fazpassId,
-      }),
-    );
+    final request = HttpRequestUtil(APIEndpoint.validateUser);
+    final response = await request([phoneNumber, meta, fazpassId]);
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return ValidateResult(data['data']['score'], data['data']['risk_level']);
-    }
-
-    throw HttpException(response.body, uri: uri);
+    final data = response['data'];
+    return ValidateResult(data['score'], data['risk_level']);
   }
 
   @override
   Future<String> getPaymentUrl(int topupAmount) async {
-    Map data = {
-      "transaction_details": {
+    final prefs = await SharedPreferences.getInstance();
+    final phoneNumber = prefs.getString('phone');
+
+    final request = HttpRequestUtil(APIEndpoint.getPaymentUrl, headers: {
+      'Accept': 'application/json',
+      'Authorization':' Basic ${utf8.fuse(base64).encode('SB-Mid-server-Hxn-SSdJ5J2OTr4UBJ04eLa6:')}'
+    });
+    final response = await request([
+      {
         "order_id": 'id-${DateTime.now().millisecondsSinceEpoch}',
         "gross_amount": topupAmount.toDouble(),
       },
-      "item_details": [
+      [
         {
           "id": 1,
           "price": topupAmount.toDouble(),
           "quantity": 1,
           "name": 'Topup',
-          "merchant_name": "Marketplacebo"
+          "merchant_name": "E-Wallet"
         }
       ],
-      "customer_details": {
+      {
         "first_name": 'User',
         "last_name": '',
         "email": 'user@mail.com',
-        "phone": '0812345678890',
+        "phone": '$phoneNumber',
       },
-      "callbacks": {
-      },
-      "gopay": {
+      {},
+      {
         "enable_callback": true,
       }
-    };
+    ]);
 
-    Codec<String, String> stringToBase64 = utf8.fuse(base64);
-    Uri uri = Uri.parse('https://app.sandbox.midtrans.com/snap/v1/transactions');
-    final response = await http.post(
-        uri,
-        headers: <String, String>{
-          'Accept': 'application/json',
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization':' Basic ${stringToBase64.encode('SB-Mid-server-Hxn-SSdJ5J2OTr4UBJ04eLa6:')}'
-        },
-        body: jsonEncode(data)
-    );
-
-    print(response.statusCode);
-    print(response.body);
-    if (response.statusCode == 201) {
-      return jsonDecode(response.body)['redirect_url'];
-    }
-
-    throw HttpException(response.body, uri: uri);
+    return response['redirect_url'];
   }
 
   @override

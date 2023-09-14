@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import 'package:flutter_trusted_device_v2/flutter_trusted_device_v2.dart';
@@ -19,7 +21,14 @@ class LoginController extends Controller {
     _tempPhoneNumber = phoneNumber;
     refreshUI();
 
-    _presenter.login(phoneNumber);
+    if (_tempPhoneNumber!.startsWith('+')) {
+      _tempPhoneNumber = _tempPhoneNumber!.substring(1);
+    }
+    if (_tempPhoneNumber!.startsWith('62')) {
+      _tempPhoneNumber = '0${_tempPhoneNumber!.substring(2)}';
+    }
+
+    _presenter.login(_tempPhoneNumber!);
   }
 
   @override
@@ -42,7 +51,9 @@ class LoginController extends Controller {
     if (isLoggedIn) _navigateToHome();
   }
 
-  _initializeOnError(e) {}
+  _initializeOnError(e) {
+    throw e;
+  }
 
   _loginOnNext(bool canLoginInstantly, String? otpId, String? meta) {
     isLoading = false;
@@ -61,17 +72,48 @@ class LoginController extends Controller {
     refreshUI();
 
     if (e is FazpassException) {
-      // TODO: handle error
+      String message;
+      switch (e) {
+        case BiometricNoneEnrolledError():
+          message = 'You have to enroll '
+              'biometric (e.g. Fingerprint, Face, Iris) '
+              'or device credential (e.g. Pattern, PIN, Password) '
+              'on your phone to continue.';
+          break;
+        case BiometricUnavailableError():
+          message = 'Biometric hardware is currently unavailable.';
+          break;
+        default:
+          message = e.message ?? e.toString();
+          break;
+      }
+      
+      showDialog(
+        context: getContext(),
+        builder: (c) => AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+        ),
+      );
+    } else if (e is TimeoutException) {
+      showDialog(
+        context: getContext(),
+        builder: (c) => const AlertDialog(
+          title: Text('Connection Timeout'),
+          content: Text('Please check your internet and try again.'),
+        ),
+      );
     } else {
-      print(e);
+      throw e;
     }
   }
 
   void _showOtpValidationSheet(String otpId, String meta) async {
+    final phoneNumber = '$_tempPhoneNumber';
     final isSuccess = await showModalBottomSheet<bool>(
       context: getContext(),
       showDragHandle: true,
-      builder: (c) => ValidateOtpSheet(otpId: otpId, meta: meta, phoneNumber: _tempPhoneNumber!),
+      builder: (c) => ValidateOtpSheet(otpId: otpId, meta: meta, phoneNumber: phoneNumber),
     );
 
     _tempPhoneNumber = null;

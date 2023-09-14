@@ -1,25 +1,25 @@
 
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import 'package:tdv2_showcase_mobile/domain/helper/one_time_observer.dart';
-import 'package:tdv2_showcase_mobile/domain/usecase/validate_otp_then_enroll_usecase.dart';
+import 'package:tdv2_showcase_mobile/domain/usecase/verify_login_usecase.dart';
 
 class ValidateOtpPresenter extends Presenter {
 
-  late Function(bool) validateOtpThenEnrollOnNext;
-  late Function(dynamic) validateOtpThenEnrollOnError;
+  late Function(bool) verifyLoginOnNext;
+  late Function(dynamic) verifyLoginOnError;
 
-  final ValidateOtpThenEnrollUseCase _validateOtpThenEnrollUseCase;
+  final VerifyLoginUseCase _verifyLoginUseCase;
   ValidateOtpPresenter(loginRepo)
-      : _validateOtpThenEnrollUseCase = ValidateOtpThenEnrollUseCase(loginRepo);
+      : _verifyLoginUseCase = VerifyLoginUseCase(loginRepo);
 
   @override
   void dispose() {
-    _validateOtpThenEnrollUseCase.dispose();
+    _verifyLoginUseCase.dispose();
   }
 
-  void validateOtpThenEnroll(String phoneNumber, String meta, String otpId, String otp) {
-    _validateOtpThenEnrollUseCase.execute(
-        OneTimeObserver(validateOtpThenEnrollOnNext, validateOtpThenEnrollOnError),
-        ValidateOtpThenEnrollUseCaseParam(phoneNumber, meta, otpId, otp));
+  void verifyLogin(String phoneNumber, String meta, String otpId, String otp) {
+    _verifyLoginUseCase.execute(
+        OneTimeObserver(verifyLoginOnNext, verifyLoginOnError),
+        VerifyLoginUseCaseParam(phoneNumber, meta, otpId, otp));
   }
 }

@@ -41,7 +41,7 @@ class HomeController extends Controller {
   }
 
   void topup() async {
-    final paymentConfirmed = await showModalBottomSheet(
+    final paymentConfirmed = await showModalBottomSheet<bool>(
       context: getContext(),
       enableDrag: false,
       isScrollControlled: true,
@@ -49,7 +49,7 @@ class HomeController extends Controller {
       builder: (c) => TopupSheet(topupAmount: pickedAmount),
     );
 
-    if (paymentConfirmed) {
+    if (paymentConfirmed ?? false) {
       balanceAmount += pickedAmount;
       refreshUI();
     }
