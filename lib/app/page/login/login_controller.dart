@@ -119,6 +119,14 @@ class LoginController extends Controller {
     _tempPhoneNumber = null;
     if (isSuccess ?? false) {
       _navigateToHome();
+    } else {
+      showDialog(
+        context: getContext(),
+        builder: (c) => const AlertDialog(
+          title: Text('Incorrect OTP'),
+          content: Text('OTP validation failed. Please try again.'),
+        ),
+      );
     }
   }
 
