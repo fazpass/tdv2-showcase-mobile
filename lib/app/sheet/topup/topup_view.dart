@@ -35,7 +35,7 @@ class TopupSheetState extends ViewState<TopupSheet, TopupController> {
               } else if (controller.url?.isEmpty ?? false) {
                 return _errorView('Something went wrong. Please try again.');
               } else {
-                return _loadingView('Loading payment webview...');
+                return _loadingView('Loading payment...');
               }
             } else {
               return _errorView('It looks like your device isn\'t trusted enough. :)');
