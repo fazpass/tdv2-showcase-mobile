@@ -5,6 +5,7 @@ import 'package:tdv2_showcase_mobile/app/page/home/home_controller.dart';
 import 'package:tdv2_showcase_mobile/app/page/home/ui/home_ui.dart';
 import 'package:tdv2_showcase_mobile/app/page/home/ui/profile_ui.dart';
 import 'package:tdv2_showcase_mobile/app/page/home/ui/topup_ui.dart';
+import 'package:tdv2_showcase_mobile/app/widget/logs_dialog.dart';
 import 'package:tdv2_showcase_mobile/app/widget/primary_bottom_navbar.dart';
 import 'package:tdv2_showcase_mobile/data/repo/home_repository.dart';
 import 'package:tdv2_showcase_mobile/device/repo/fazpass_repository.dart';
@@ -36,6 +37,12 @@ class HomeViewState extends ViewState<HomeView, HomeController> {
           default:
             return const HomeUI();
         }
+      },
+    ),
+    // for testing
+    floatingActionButton: FloatingActionButton(
+      onPressed: () {
+        showDialog(context: context, builder: (context) => const LogsDialog());
       },
     ),
   );

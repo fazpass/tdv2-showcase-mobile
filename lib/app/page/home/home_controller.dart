@@ -91,6 +91,11 @@ class HomeController extends Controller {
     _presenter.logout();
   }
 
+  void respondToLoginRequest(BuildContext c, String receiverId, bool answer) {
+    _presenter.validateNotification(receiverId, answer);
+    Navigator.pop(c);
+  }
+
   @override
   void onInitState() {
     super.onInitState();
@@ -111,6 +116,10 @@ class HomeController extends Controller {
     _presenter.removeDeviceOnError = _removeDeviceOnError;
     _presenter.logoutOnNext = _logoutOnNext;
     _presenter.logoutOnError = _logoutOnError;
+    _presenter.listenToNotificationRequestOnNext = _listenToNotificationRequestOnNext;
+    _presenter.listenToNotificationRequestOnError = _listenToNotificationRequestOnError;
+    _presenter.validateNotificationOnNext = _validateNotificationOnNext;
+    _presenter.validateNotificationOnError = _validateNotificationOnError;
   }
 
   _getPromosOnNext(List<Promo> p1) {
@@ -181,5 +190,51 @@ class HomeController extends Controller {
 
   _logoutOnError(e) {
     logger.severe(e);
+  }
+
+  _listenToNotificationRequestOnNext(String requesterDeviceInfo, String receiverId) {
+    showDialog(
+      context: getContext(),
+      builder: (c) => AlertDialog(
+        title: const Text('Verify Login'),
+        content: Text('Device "${requesterDeviceInfo.split('/').getRange(0, 2).join(', ')}" wants to '
+            'login with your account. Accept it?'),
+        actions: [
+          TextButton(onPressed: () => respondToLoginRequest(c, receiverId, true), child: const Text('Accept')),
+          TextButton(onPressed: () => respondToLoginRequest(c, receiverId, false), child: const Text('Decline')),
+        ],
+      ),
+    );
+  }
+
+  _listenToNotificationRequestOnError(e) {
+    print(e);
+  }
+
+  _validateNotificationOnNext(bool isSuccess) {
+    showDialog(
+      context: getContext(),
+      builder: (c) => AlertDialog(
+        title: const Text('Verify Login Status'),
+        content: Text('Verify login ${isSuccess ? 'responded successfully' : 'failed to respond'}.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c), child: const Text('OK')),
+        ],
+      ),
+    );
+  }
+
+  _validateNotificationOnError(e) {
+    print(e);
+    showDialog(
+      context: getContext(),
+      builder: (c) => AlertDialog(
+        title: const Text('Verify Login Status'),
+        content: const Text('Verify login failed to respond.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c), child: const Text('OK')),
+        ],
+      ),
+    );
   }
 }

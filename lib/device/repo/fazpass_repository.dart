@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:flutter_trusted_device_v2/flutter_trusted_device_v2.dart';
 import 'package:tdv2_showcase_mobile/domain/repo/fazpass_repository.dart';
 
@@ -21,5 +23,15 @@ class DeviceFazpassRepository implements FazpassRepository {
   @override
   Future<void> enableSelected(List<SensitiveData> sensitiveData) async {
     await Fazpass.instance.enableSelected(sensitiveData);
+  }
+
+  @override
+  Stream<CrossDeviceRequest> listenToIncomingValidateNotificationRequest() {
+    final controller = StreamController<CrossDeviceRequest>();
+    Fazpass.instance.getCrossDeviceRequestFromIntent().then((value) {
+      if (value != null) controller.add(value);
+      controller.addStream(Fazpass.instance.getCrossDeviceRequestStreamInstance());
+    });
+    return controller.stream;
   }
 }

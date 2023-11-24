@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import 'package:flutter_trusted_device_v2/flutter_trusted_device_v2.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:tdv2_showcase_mobile/app/page/login/login_presenter.dart';
 import 'package:tdv2_showcase_mobile/app/router.dart';
-import 'package:tdv2_showcase_mobile/app/sheet/validate_otp/validate_otp_view.dart';
+import 'package:tdv2_showcase_mobile/app/sheet/verify_login/verify_login_view.dart';
+import 'package:tdv2_showcase_mobile/domain/entity/notifiable_device.dart';
 
 class LoginController extends Controller {
 
@@ -35,7 +37,15 @@ class LoginController extends Controller {
   void onInitState() {
     super.onInitState();
     WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback((timeStamp) {
-      _presenter.initialize('tdv2_showcase_public.pub', []);
+      _presenter.initialize('tdv2_showcase_public.pub', [
+        SensitiveData.location,
+        SensitiveData.simNumbersAndOperators,
+      ]);
+
+      [
+        Permission.location,
+        Permission.phone,
+      ].request();
     });
   }
 
@@ -55,14 +65,14 @@ class LoginController extends Controller {
     throw e;
   }
 
-  _loginOnNext(bool canLoginInstantly, String? otpId, String? meta) {
+  _loginOnNext(bool canLoginInstantly, String meta, List<NotifiableDevice> notifiableDevices) {
     isLoading = false;
     refreshUI();
 
     if (canLoginInstantly) {
       _navigateToHome();
     } else {
-      _showOtpValidationSheet(otpId!, meta!);
+      _showVerifyLoginSheet(meta, notifiableDevices);
     }
   }
 
@@ -76,8 +86,7 @@ class LoginController extends Controller {
       switch (e) {
         case BiometricNoneEnrolledError():
           message = 'You have to enroll '
-              'biometric (e.g. Fingerprint, Face, Iris) '
-              'or device credential (e.g. Pattern, PIN, Password) '
+              'biometric or device passcode '
               'on your phone to continue.';
           break;
         case BiometricUnavailableError():
@@ -104,27 +113,36 @@ class LoginController extends Controller {
         ),
       );
     } else {
+      print(e);
+      showDialog(
+        context: getContext(),
+        builder: (c) => const AlertDialog(
+          title: Text('Server Error'),
+          content: Text('There seems to be a problem in the server, please try again later.'),
+        ),
+      );
+
       throw e;
     }
   }
 
-  void _showOtpValidationSheet(String otpId, String meta) async {
+  void _showVerifyLoginSheet(String meta, List<NotifiableDevice> notifiableDevices) async {
     final phoneNumber = '$_tempPhoneNumber';
     final isSuccess = await showModalBottomSheet<bool>(
       context: getContext(),
       showDragHandle: true,
-      builder: (c) => ValidateOtpSheet(otpId: otpId, meta: meta, phoneNumber: phoneNumber),
+      builder: (c) => VerifyLoginSheet(meta: meta, phoneNumber: phoneNumber, notifiableDevices: notifiableDevices),
     );
 
     _tempPhoneNumber = null;
-    if (isSuccess ?? false) {
+    if (isSuccess == true) {
       _navigateToHome();
-    } else {
+    } else if (isSuccess == false) {
       showDialog(
         context: getContext(),
         builder: (c) => const AlertDialog(
-          title: Text('Incorrect OTP'),
-          content: Text('OTP validation failed. Please try again.'),
+          title: Text('Verify Login Failed'),
+          content: Text('Failed to verify your identity. Please try again.'),
         ),
       );
     }

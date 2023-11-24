@@ -37,11 +37,12 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_clean_architecture: ^5.0.4
   intl: ^0.18.1
-  flutter_trusted_device_v2: ^1.0.0
+  flutter_trusted_device_v2: ^1.0.1-dev.6
   http: ^1.1.0
   shared_preferences: ^2.2.0
   webview_flutter: ^4.2.3
   newrelic_mobile: ^1.0.0
+  permission_handler: ^11.0.1
 
 dev_dependencies:
   flutter_test:

@@ -7,8 +7,8 @@ import 'package:tdv2_showcase_mobile/domain/entity/category.dart';
 import 'package:tdv2_showcase_mobile/domain/entity/product.dart';
 import 'package:tdv2_showcase_mobile/domain/entity/promo.dart';
 import 'package:tdv2_showcase_mobile/domain/entity/tenant.dart';
-import 'package:tdv2_showcase_mobile/domain/entity/validate_result.dart';
 import 'package:tdv2_showcase_mobile/domain/repo/home_repository.dart';
+import 'package:tdv2_showcase_mobile/domain/usecase/validate_usecase.dart';
 
 class DataHomeRepository implements HomeRepository {
   
@@ -37,7 +37,7 @@ class DataHomeRepository implements HomeRepository {
   }
 
   @override
-  Future<ValidateResult> validate(String meta) async {
+  Future<ValidateUseCaseResponse> validate(String meta) async {
     final prefs = await SharedPreferences.getInstance();
     final phoneNumber = prefs.getString('phone');
     final fazpassId = prefs.getString('fazpass_id');
@@ -46,7 +46,7 @@ class DataHomeRepository implements HomeRepository {
     final response = await request([phoneNumber, meta, fazpassId]);
 
     final data = response['data'];
-    return ValidateResult(data['score'], data['risk_level']);
+    return ValidateUseCaseResponse(data['score'], data['risk_level']);
   }
 
   @override
@@ -85,6 +85,14 @@ class DataHomeRepository implements HomeRepository {
     ]);
 
     return response['redirect_url'];
+  }
+
+  @override
+  Future<bool> validateNotification(String meta, String receiverId, bool answer) async {
+    final request = HttpRequestUtil(APIEndpoint.validateNotification);
+    final response = await request([receiverId, meta, answer]);
+
+    return response['status'] as bool? ?? false;
   }
 
   @override

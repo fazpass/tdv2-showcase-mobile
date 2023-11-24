@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
-import 'package:tdv2_showcase_mobile/domain/entity/validate_result.dart';
 
 import 'topup_presenter.dart';
 
@@ -39,9 +38,9 @@ class TopupController extends Controller {
     _presenter.getPaymentUrlOnError = _getPaymentUrlError;
   }
 
-  _validateOnNext(ValidateResult value) {
-    confidenceValue = value.score;
-    riskLevel = value.riskDescription;
+  _validateOnNext(int score, String riskDescription) {
+    confidenceValue = score;
+    riskLevel = riskDescription;
     refreshUI();
 
     if (riskLevel!.toLowerCase() == 'low') _presenter.getPaymentUrl(topupAmount!);

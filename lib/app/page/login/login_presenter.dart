@@ -1,6 +1,7 @@
 
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import 'package:flutter_trusted_device_v2/flutter_trusted_device_v2.dart';
+import 'package:tdv2_showcase_mobile/domain/entity/notifiable_device.dart';
 import 'package:tdv2_showcase_mobile/domain/helper/one_time_observer.dart';
 import 'package:tdv2_showcase_mobile/domain/usecase/initialize_app_usecase.dart';
 import 'package:tdv2_showcase_mobile/domain/usecase/login_usecase.dart';
@@ -9,7 +10,7 @@ class LoginPresenter extends Presenter {
 
   late Function(bool) initializeOnNext;
   late Function(dynamic) initializeOnError;
-  late Function(bool, String?, String?) loginOnNext;
+  late Function(bool, String, List<NotifiableDevice>) loginOnNext;
   late Function(dynamic) loginOnError;
 
   final LoginUseCase _loginUseCase;
@@ -33,7 +34,7 @@ class LoginPresenter extends Presenter {
 
   void login(String phoneNumber) {
     _loginUseCase.execute(
-      OneTimeObserver((loginResponse) => loginOnNext(loginResponse.canLoginInstantly, loginResponse.otpId, loginResponse.meta), loginOnError),
+      OneTimeObserver((loginResponse) => loginOnNext(loginResponse.canLoginInstantly, loginResponse.meta, loginResponse.notifiableDevices), loginOnError),
       phoneNumber,
     );
   }

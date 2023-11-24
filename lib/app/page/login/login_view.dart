@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide View;
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import 'package:tdv2_showcase_mobile/app/page/login/login_controller.dart';
 import 'package:tdv2_showcase_mobile/app/util/assets.dart';
+import 'package:tdv2_showcase_mobile/app/widget/logs_dialog.dart';
 import 'package:tdv2_showcase_mobile/app/widget/main_text_field.dart';
 import 'package:tdv2_showcase_mobile/app/widget/primary_elevated_button.dart';
 import 'package:tdv2_showcase_mobile/data/repo/login_repository.dart';
@@ -96,6 +97,12 @@ class LoginViewState extends ViewState<LoginView, LoginController> {
           ),
         ),
       ],
+    ),
+    // for testing
+    floatingActionButton: FloatingActionButton(
+      onPressed: () {
+        showDialog(context: context, builder: (context) => const LogsDialog());
+      },
     ),
   );
 }

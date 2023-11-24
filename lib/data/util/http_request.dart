@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:tdv2_showcase_mobile/app/util/constants.dart';
+
+import 'http_request_log.dart';
 
 enum APIEndpoint {
   /// Parameters:
@@ -30,6 +33,16 @@ enum APIEndpoint {
   /// - [String] meta
   /// - [String] fazpass_id
   validateUser(url: '$_base/validate-user', successCode: 200, params: ['phone', 'meta', 'fazpass_id']),
+  /// Parameters:
+  /// - [String] phone
+  /// - [String] meta
+  /// - [String] selected_device
+  sendNotification(url: '$_base/send-notification', successCode: 200, params: ['phone', 'meta', 'selected_device']),
+  /// Parameters:
+  /// - [String] receiver_id
+  /// - [String] meta
+  /// - [bool] result
+  validateNotification(url: '$_base/validate-notification', successCode: 200, params: ['receiver_id', 'meta', 'result']),
   /// Headers:
   /// - Accept
   /// - Authorization
@@ -64,7 +77,10 @@ class HttpRequestUtil {
   HttpRequestUtil(this.api, {this.headers});
 
   Future<Map<String, dynamic>> call(List params) async {
+    final log = RequestLog(api.name);
     final uri = Uri.parse(api.url);
+
+    log.start();
     final response = await http.post(
       uri,
       headers: {
@@ -78,9 +94,14 @@ class HttpRequestUtil {
     ).timeout(const Duration(seconds: 12));
 
     if (response.statusCode == api.successCode) {
+      log.stop(true);
+      Constants.logs.add(log);
       return jsonDecode(response.body);
     }
 
+    log.stop(false);
+    Constants.logs.add(log);
+    print(response.body);
     throw HttpException(response.body, uri: uri);
   }
 }
