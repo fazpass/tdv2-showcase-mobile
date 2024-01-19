@@ -1,6 +1,5 @@
 
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,20 +22,12 @@ class DataLoginRepository implements LoginRepository {
 
     final data = response['data'];
     final status = data['status'] as bool;
-    final fazpassId = data['fazpass_id'] as String;
+    final fazpassId = data['fazpass_id'] as String?;
+    final challenge = data['challenge'] as String;
     final notifiableDevices = (data['notifiable_devices'] as List?)
-        ?.map((e) => NotifiableDeviceModel.fromJson(e).toEntity()).toList();
-    log(notifiableDevices.toString(), name: 'Notifiable device', level: 800);
+        ?.map((e) => NotifiableDeviceModel.fromJson(e).toEntity()).toList() ?? [];
 
-    if (status && fazpassId.isNotEmpty) {
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setString('phone', phoneNumber);
-      prefs.setString('fazpass_id', fazpassId);
-      prefs.setBool('is_logged_in', true);
-      return LoginUseCaseResponse(true, meta, []);
-    }
-
-    return LoginUseCaseResponse(false, meta, notifiableDevices ?? []);
+    return LoginUseCaseResponse(status, meta, notifiableDevices, challenge, fazpassId: fazpassId);
   }
 
   @override
@@ -75,19 +66,14 @@ class DataLoginRepository implements LoginRepository {
   }
 
   @override
-  Future<bool> enroll(String phoneNumber, String meta) async {
+  Future<String?> enroll(String phoneNumber, String meta, String challenge) async {
     final enrollRequest = HttpRequestUtil(APIEndpoint.enroll);
-    final enrollResponse = await enrollRequest([phoneNumber, meta]);
+    final enrollResponse = await enrollRequest([phoneNumber, meta, challenge]);
 
     final data = enrollResponse['data'];
     final fazpassId = data['fazpass_id'];
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('phone', phoneNumber);
-    await prefs.setString('fazpass_id', fazpassId);
-    await prefs.setBool('is_logged_in', true);
-
-    return true;
+    return fazpassId as String?;
   }
 
   @override

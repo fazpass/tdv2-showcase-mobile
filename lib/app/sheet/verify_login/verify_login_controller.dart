@@ -16,8 +16,8 @@ class VerifyLoginController extends Controller {
   String? selectedDevice;
   
   final VerifyLoginPresenter presenter;
-  VerifyLoginController(loginRepo)
-      : presenter = VerifyLoginPresenter(loginRepo);
+  VerifyLoginController(loginRepo, storedDataRepo)
+      : presenter = VerifyLoginPresenter(loginRepo, storedDataRepo);
 
   void requestOtp(String phoneNumber, String meta) {
     state = VerifyLoginState.inputOtp;
@@ -26,13 +26,13 @@ class VerifyLoginController extends Controller {
     presenter.requestOtp(phoneNumber, meta);
   }
 
-  void validateOtp(String otp, String phoneNumber, String meta) {
+  void validateOtp(String otp, String phoneNumber, String meta, String challenge) {
     if (otpId == null) return;
 
     state = VerifyLoginState.otpLoading;
     refreshUI();
 
-    presenter.validateOtp(phoneNumber, meta, otpId!, otp);
+    presenter.validateOtp(phoneNumber, meta, otpId!, otp, challenge);
   }
 
   void sendNotification(String phoneNumber, String meta, String selectedDeviceId, String selectedDeviceReadable) {

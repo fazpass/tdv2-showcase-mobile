@@ -11,24 +11,35 @@ class DeviceFazpassRepository implements FazpassRepository {
   factory DeviceFazpassRepository() => _instance;
 
   @override
-  Future<void> initialize(String assetName) async {
-    await Fazpass.instance.init(assetName);
+  Future<void> initialize({required String androidAssetName, required String iosAssetName, required String iosFcmAppId}) async {
+    await Fazpass.instance.init(androidAssetName: androidAssetName, iosAssetName: iosAssetName, iosFcmAppId: iosFcmAppId);
   }
 
   @override
-  Future<String> generateMeta() async {
-    return await Fazpass.instance.generateMeta();
+  Future<String> generateMeta({int accountIndex=-1}) async {
+    return Fazpass.instance.generateMeta(accountIndex: accountIndex);
   }
 
   @override
-  Future<void> enableSelected(List<SensitiveData> sensitiveData) async {
-    await Fazpass.instance.enableSelected(sensitiveData);
+  Future<bool> generateSecretKey() async {
+    await Fazpass.instance.generateSecretKeyForHighLevelBiometric();
+    return true;
+  }
+
+  @override
+  Future<FazpassSettings?> getSettings({int accountIndex=-1}) async {
+    return Fazpass.instance.getSettingsForAccountIndex(accountIndex);
+  }
+
+  @override
+  Future<void> setSettings({int accountIndex=-1, FazpassSettings? settings}) async {
+    return Fazpass.instance.setSettingsForAccountIndex(accountIndex, settings);
   }
 
   @override
   Stream<CrossDeviceRequest> listenToIncomingValidateNotificationRequest() {
     final controller = StreamController<CrossDeviceRequest>();
-    Fazpass.instance.getCrossDeviceRequestFromIntent().then((value) {
+    Fazpass.instance.getCrossDeviceRequestFromNotification().then((value) {
       if (value != null) controller.add(value);
       controller.addStream(Fazpass.instance.getCrossDeviceRequestStreamInstance());
     });

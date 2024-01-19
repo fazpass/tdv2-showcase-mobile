@@ -9,6 +9,7 @@ import 'package:tdv2_showcase_mobile/app/widget/logs_dialog.dart';
 import 'package:tdv2_showcase_mobile/app/widget/primary_bottom_navbar.dart';
 import 'package:tdv2_showcase_mobile/data/repo/home_repository.dart';
 import 'package:tdv2_showcase_mobile/device/repo/fazpass_repository.dart';
+import 'package:tdv2_showcase_mobile/device/repo/stored_data_repository.dart';
 
 class HomeView extends View {
   const HomeView({super.key});
@@ -18,7 +19,7 @@ class HomeView extends View {
 }
 
 class HomeViewState extends ViewState<HomeView, HomeController> {
-  HomeViewState() : super(HomeController(DataHomeRepository(), DeviceFazpassRepository()));
+  HomeViewState() : super(HomeController(DataHomeRepository(), DeviceFazpassRepository(), DeviceStoredDataRepository()));
 
   @override
   Widget get view => Scaffold(

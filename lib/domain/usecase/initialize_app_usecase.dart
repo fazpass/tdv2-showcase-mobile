@@ -1,5 +1,4 @@
 
-import 'package:flutter_trusted_device_v2/flutter_trusted_device_v2.dart';
 import 'package:tdv2_showcase_mobile/domain/helper/one_time_usecase.dart';
 import 'package:tdv2_showcase_mobile/domain/repo/fazpass_repository.dart';
 import 'package:tdv2_showcase_mobile/domain/repo/login_repository.dart';
@@ -7,15 +6,19 @@ import 'package:tdv2_showcase_mobile/domain/repo/login_repository.dart';
 class InitializeAppUseCase extends OneTimeUseCase<bool, InitializeAppUseCaseParams> {
   InitializeAppUseCase(LoginRepository loginRepo, FazpassRepository fazpassRepo)
       : super((params) async {
-        await fazpassRepo.initialize(params!.assetName);
-        await fazpassRepo.enableSelected(params.enabledSensitiveData);
+        await fazpassRepo.initialize(
+            androidAssetName: params!.androidAssetName,
+            iosAssetName: params.iosAssetName,
+            iosFcmAppId: params.iosFcmAppId);
         return await loginRepo.isLoggedIn();
       });
 }
 
 class InitializeAppUseCaseParams {
-  final String assetName;
-  final List<SensitiveData> enabledSensitiveData;
+  final String androidAssetName;
+  final String iosAssetName;
+  final String iosFcmAppId;
 
-  InitializeAppUseCaseParams(this.assetName, this.enabledSensitiveData);
+  InitializeAppUseCaseParams(this.androidAssetName, this.iosAssetName,
+      this.iosFcmAppId);
 }

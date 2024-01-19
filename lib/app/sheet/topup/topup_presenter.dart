@@ -6,16 +6,16 @@ import 'package:tdv2_showcase_mobile/domain/usecase/validate_usecase.dart';
 
 class TopupPresenter extends Presenter {
 
-  late Function(int, String) validateOnNext;
+  late Function(double, String) validateOnNext;
   late Function(dynamic) validateOnError;
   late Function(String) getPaymentUrlOnNext;
   late Function(dynamic) getPaymentUrlOnError;
 
   final ValidateUseCase _validateUseCase;
   final GetPaymentUrlUseCase _getPaymentUrlUseCase;
-  TopupPresenter(homeRepo, fazpassRepo)
-      : _validateUseCase = ValidateUseCase(homeRepo, fazpassRepo),
-        _getPaymentUrlUseCase = GetPaymentUrlUseCase(homeRepo);
+  TopupPresenter(homeRepo, fazpassRepo, storedDataRepo)
+      : _validateUseCase = ValidateUseCase(homeRepo, fazpassRepo, storedDataRepo),
+        _getPaymentUrlUseCase = GetPaymentUrlUseCase(homeRepo, storedDataRepo);
 
   @override
   void dispose() {
@@ -25,7 +25,7 @@ class TopupPresenter extends Presenter {
 
   void validate() async {
     _validateUseCase.execute(
-        OneTimeObserver((validateResponse) => validateOnNext(validateResponse.score, validateResponse.riskDescription), validateOnError)
+        OneTimeObserver((r) => validateOnNext(r.score, r.riskDescription), validateOnError)
     );
   }
 

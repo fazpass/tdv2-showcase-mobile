@@ -8,7 +8,7 @@ import 'package:newrelic_mobile/newrelic_mobile.dart';
 
 
 void main() {
-  var newRelicToken = "AA3e24ea131fd2820857b681c3961dda66142706d3-NRMA";
+  const newRelicToken = "AA3e24ea131fd2820857b681c3961dda66142706d3-NRMA";
 
   Config config = Config(accessToken: newRelicToken,
     // Optional: Enable or disable collection of event data.

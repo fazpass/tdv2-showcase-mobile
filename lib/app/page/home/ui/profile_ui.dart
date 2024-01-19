@@ -26,6 +26,11 @@ class ProfileUI extends StatelessWidget {
                 ),
               ),
               ListTile(
+                leading: const Icon(Icons.settings),
+                title: const Text('Settings'),
+                onTap: controller.settings,
+              ),
+              ListTile(
                 leading: const Icon(Icons.phonelink_erase),
                 title: const Text('Remove Device'),
                 onTap: controller.removeDevice,

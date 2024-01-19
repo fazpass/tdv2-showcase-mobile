@@ -4,15 +4,17 @@ import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import 'package:tdv2_showcase_mobile/app/widget/main_text_field.dart';
 import 'package:tdv2_showcase_mobile/app/widget/primary_elevated_button.dart';
 import 'package:tdv2_showcase_mobile/data/repo/login_repository.dart';
+import 'package:tdv2_showcase_mobile/device/repo/stored_data_repository.dart';
 import 'package:tdv2_showcase_mobile/domain/entity/notifiable_device.dart';
 
 import 'verify_login_controller.dart';
 
 class VerifyLoginSheet extends View {
-  const VerifyLoginSheet({super.key, required this.phoneNumber, required this.meta, required this.notifiableDevices});
+  const VerifyLoginSheet({super.key, required this.phoneNumber, required this.meta, required this.challenge, required this.notifiableDevices});
 
   final String phoneNumber;
   final String meta;
+  final String challenge;
   final List<NotifiableDevice> notifiableDevices;
 
   @override
@@ -20,7 +22,7 @@ class VerifyLoginSheet extends View {
 }
 
 class _VerifyLoginSheetState extends ViewState<VerifyLoginSheet, VerifyLoginController> {
-  _VerifyLoginSheetState() : super(VerifyLoginController(DataLoginRepository()));
+  _VerifyLoginSheetState() : super(VerifyLoginController(DataLoginRepository(), DeviceStoredDataRepository()));
 
   final otpController = TextEditingController();
 
@@ -89,7 +91,7 @@ class _VerifyLoginSheetState extends ViewState<VerifyLoginSheet, VerifyLoginCont
                 PrimaryElevatedButton(
                   onClick: isLoading
                       ? null
-                      : () => controller.validateOtp(otpController.text, widget.phoneNumber, widget.meta),
+                      : () => controller.validateOtp(otpController.text, widget.phoneNumber, widget.meta, widget.challenge),
                   label: 'Validate OTP',
                 ),
               ],

@@ -1,8 +1,7 @@
 
 import 'package:flutter/material.dart';
-import 'package:tdv2_showcase_mobile/app/widget/main_text_field.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 import 'package:tdv2_showcase_mobile/app/util/assets.dart';
+import 'package:tdv2_showcase_mobile/app/widget/main_text_field.dart';
 
 class PaymentView extends StatefulWidget {
   const PaymentView({super.key, required this.url, required this.onConfirmPayment});
@@ -19,24 +18,6 @@ class _PaymentViewState extends State<PaymentView> {
   static const verifyPaymentCode = '1234';
   static const horizontalPadding = 12.0;
 
-  late final controller = WebViewController()
-    ..setJavaScriptMode(JavaScriptMode.unrestricted)
-    ..setNavigationDelegate(NavigationDelegate(
-      onNavigationRequest: (request) {
-        if (request.url.contains('result=success') || request.url.contains('transaction_status=settlement')
-            || request.url.contains('transaction_status=capture')) {
-          widget.onConfirmPayment();
-          return NavigationDecision.prevent;
-        }
-        else if (request.url.contains('example.com') || request.url.contains('result=error')) {
-          Navigator.pop(context, false);
-          return NavigationDecision.prevent;
-        }
-
-        return NavigationDecision.navigate;
-      },
-    ))
-    ..loadRequest(Uri.parse(widget.url));
   final pageController = PageController(
     initialPage: 0,
     keepPage: false,
@@ -65,16 +46,11 @@ class _PaymentViewState extends State<PaymentView> {
   }
 
   @override
-  Widget build(BuildContext context) => /*WebViewWidget(
-    gestureRecognizers: <Factory<VerticalDragGestureRecognizer>>{
-      Factory<VerticalDragGestureRecognizer>(() => VerticalDragGestureRecognizer()),
-    },
-    controller: controller,
-  );*/
-  Container(
+  Widget build(BuildContext context) => SizedBox(
     height: 600,
     child: PageView(
       controller: pageController,
+      physics: const NeverScrollableScrollPhysics(),
       children: [
         pickVendorPage(),
         confirmPaymentPage(),
@@ -144,6 +120,7 @@ class _PaymentViewState extends State<PaymentView> {
   Widget confirmPaymentPage() => Padding(
     padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
     child: SingleChildScrollView(
+      physics: const ClampingScrollPhysics(),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,

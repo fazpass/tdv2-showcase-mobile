@@ -1,12 +1,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
+import 'package:flutter_trusted_device_v2/flutter_trusted_device_v2.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:tdv2_showcase_mobile/app/router.dart';
-import 'package:tdv2_showcase_mobile/domain/entity/category.dart';
-import 'package:tdv2_showcase_mobile/domain/entity/product.dart';
-import 'package:tdv2_showcase_mobile/domain/entity/promo.dart';
-import 'package:tdv2_showcase_mobile/domain/entity/tenant.dart';
 import 'package:tdv2_showcase_mobile/app/sheet/topup/topup_view.dart';
+import 'package:tdv2_showcase_mobile/app/widget/settings_dialog.dart';
 
 import 'home_presenter.dart';
 
@@ -16,19 +15,12 @@ class HomeController extends Controller {
 
   int balanceAmount = 0;
   int pickedAmount = 0;
-
-  bool isLoadingPromos = true;
-  List<Promo> promos = [];
-  bool isLoadingProducts = true;
-  List<Product> products = [];
-  bool isLoadingCategories = true;
-  List<Category> categories = [];
-  bool isLoadingTenants = true;
-  List<Tenant> tenants = [];
+  FazpassSettings? fazpassSettings;
+  FazpassSettings? tempFazpassSettings;
 
   final HomePresenter _presenter;
-  HomeController(homeRepo, fazpassRepo)
-      : _presenter = HomePresenter(homeRepo, fazpassRepo);
+  HomeController(homeRepo, fazpassRepo, storedDataRepo)
+      : _presenter = HomePresenter(homeRepo, fazpassRepo, storedDataRepo);
 
   void changePageIndex(int index) {
     pageIndex = index;
@@ -46,7 +38,7 @@ class HomeController extends Controller {
       enableDrag: false,
       isScrollControlled: true,
       constraints: const BoxConstraints(maxHeight: 600),
-      builder: (c) => TopupSheet(topupAmount: pickedAmount),
+      builder: (c) => const TopupSheet(),
     );
 
     if (paymentConfirmed ?? false) {
@@ -55,8 +47,24 @@ class HomeController extends Controller {
     }
   }
 
+  void settings() async {
+    final builder = fazpassSettings != null
+        ? FazpassSettingsBuilder.fromFazpassSettings(fazpassSettings!)
+        : FazpassSettingsBuilder();
+
+    final settings = await showDialog<FazpassSettings>(
+      context: getContext(),
+      builder: (c) => SettingsDialog(builder: builder),
+    );
+
+    if (settings != null) {
+      tempFazpassSettings = settings;
+      _presenter.setFazpassSettings(settings);
+    }
+  }
+
   void removeDevice() async {
-    final confirmation = await showDialog(
+    final confirmation = await showDialog<bool>(
       context: getContext(),
       builder: (c) => AlertDialog(
         title: const Text('Remove Device'),
@@ -74,7 +82,7 @@ class HomeController extends Controller {
       ),
     );
 
-    if (confirmation) {
+    if (confirmation ?? false) {
       showDialog(
         context: getContext(),
         builder: (c) => const AlertDialog(
@@ -104,14 +112,6 @@ class HomeController extends Controller {
 
   @override
   void initListeners() {
-    _presenter.getPromosOnNext = _getPromosOnNext;
-    _presenter.getPromosOnError = _getPromosOnError;
-    _presenter.getProductsOnNext = _getProductsOnNext;
-    _presenter.getProductsOnError = _getProductsOnError;
-    _presenter.getCategoriesOnNext = _getCategoriesOnNext;
-    _presenter.getCategoriesOnError = _getCategoriesOnError;
-    _presenter.getTenantsOnNext = _getTenantsOnNext;
-    _presenter.getTenantsOnError = _getTenantsOnError;
     _presenter.removeDeviceOnNext = _removeDeviceOnNext;
     _presenter.removeDeviceOnError = _removeDeviceOnError;
     _presenter.logoutOnNext = _logoutOnNext;
@@ -120,54 +120,10 @@ class HomeController extends Controller {
     _presenter.listenToNotificationRequestOnError = _listenToNotificationRequestOnError;
     _presenter.validateNotificationOnNext = _validateNotificationOnNext;
     _presenter.validateNotificationOnError = _validateNotificationOnError;
-  }
-
-  _getPromosOnNext(List<Promo> p1) {
-    isLoadingPromos = false;
-    promos = p1;
-    refreshUI();
-  }
-
-  _getPromosOnError(e) {
-    logger.severe(e);
-    isLoadingPromos = false;
-    refreshUI();
-  }
-
-  _getProductsOnNext(List<Product> p1) {
-    isLoadingProducts = false;
-    products = p1;
-    refreshUI();
-  }
-
-  _getProductsOnError(e) {
-    logger.severe(e);
-    isLoadingProducts = false;
-    refreshUI();
-  }
-
-  _getCategoriesOnNext(List<Category> p1) {
-    isLoadingCategories = false;
-    categories = p1;
-    refreshUI();
-  }
-
-  _getCategoriesOnError(e) {
-    logger.severe(e);
-    isLoadingCategories = false;
-    refreshUI();
-  }
-
-  _getTenantsOnNext(List<Tenant> p1) {
-    isLoadingTenants = false;
-    tenants = p1;
-    refreshUI();
-  }
-
-  _getTenantsOnError(e) {
-    logger.severe(e);
-    isLoadingTenants = false;
-    refreshUI();
+    _presenter.getFazpassSettingsOnNext = _getFazpassSettingsOnNext;
+    _presenter.getFazpassSettingsOnError = _getFazpassSettingsOnError;
+    _presenter.setFazpassSettingsOnNext = _setFazpassSettingsOnNext;
+    _presenter.setFazpassSettingsOnError = _setFazpassSettingsOnError;
   }
 
   _removeDeviceOnNext(bool isSuccess) {
@@ -231,6 +187,51 @@ class HomeController extends Controller {
       builder: (c) => AlertDialog(
         title: const Text('Verify Login Status'),
         content: const Text('Verify login failed to respond.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c), child: const Text('OK')),
+        ],
+      ),
+    );
+  }
+
+  _getFazpassSettingsOnNext(FazpassSettings? settings) {
+    fazpassSettings = settings;
+  }
+
+  _getFazpassSettingsOnError(e) {
+    print(e);
+  }
+
+  _setFazpassSettingsOnNext(bool p1) async {
+    fazpassSettings = tempFazpassSettings;
+    tempFazpassSettings = null;
+
+    await showDialog(
+      context: getContext(),
+      builder: (c) => AlertDialog(
+        title: const Text('Saved'),
+        content: const Text('Settings successfully saved.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c), child: const Text('OK')),
+        ],
+      ),
+    );
+
+    [
+      if (fazpassSettings?.sensitiveData.contains(SensitiveData.location) ?? false) Permission.location,
+      if (fazpassSettings?.sensitiveData.contains(SensitiveData.simNumbersAndOperators) ?? false) Permission.phone,
+    ].request();
+  }
+
+  _setFazpassSettingsOnError(e) {
+    tempFazpassSettings = null;
+
+    print(e);
+    showDialog(
+      context: getContext(),
+      builder: (c) => AlertDialog(
+        title: const Text('Error'),
+        content: const Text('Settings failed to save.'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(c), child: const Text('OK')),
         ],

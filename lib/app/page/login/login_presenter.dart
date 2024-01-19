@@ -1,6 +1,5 @@
 
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
-import 'package:flutter_trusted_device_v2/flutter_trusted_device_v2.dart';
 import 'package:tdv2_showcase_mobile/domain/entity/notifiable_device.dart';
 import 'package:tdv2_showcase_mobile/domain/helper/one_time_observer.dart';
 import 'package:tdv2_showcase_mobile/domain/usecase/initialize_app_usecase.dart';
@@ -10,13 +9,13 @@ class LoginPresenter extends Presenter {
 
   late Function(bool) initializeOnNext;
   late Function(dynamic) initializeOnError;
-  late Function(bool, String, List<NotifiableDevice>) loginOnNext;
+  late Function(bool, String, List<NotifiableDevice>, String) loginOnNext;
   late Function(dynamic) loginOnError;
 
   final LoginUseCase _loginUseCase;
   final InitializeAppUseCase _initializeUseCase;
-  LoginPresenter(loginRepo, fazpassRepo)
-      : _loginUseCase = LoginUseCase(loginRepo, fazpassRepo),
+  LoginPresenter(loginRepo, fazpassRepo, storedDataRepo)
+      : _loginUseCase = LoginUseCase(loginRepo, fazpassRepo, storedDataRepo),
         _initializeUseCase = InitializeAppUseCase(loginRepo, fazpassRepo);
 
   @override
@@ -25,16 +24,16 @@ class LoginPresenter extends Presenter {
     _initializeUseCase.dispose();
   }
 
-  void initialize(String fazpassAssetName, List<SensitiveData> fazpassEnabledSensitiveData) {
+  void initialize(String androidAssetName, String iosAssetName, String iosFcmAppId) {
     _initializeUseCase.execute(
       OneTimeObserver(initializeOnNext, initializeOnError),
-      InitializeAppUseCaseParams(fazpassAssetName, fazpassEnabledSensitiveData),
+      InitializeAppUseCaseParams(androidAssetName, iosAssetName, iosFcmAppId),
     );
   }
 
   void login(String phoneNumber) {
     _loginUseCase.execute(
-      OneTimeObserver((loginResponse) => loginOnNext(loginResponse.canLoginInstantly, loginResponse.meta, loginResponse.notifiableDevices), loginOnError),
+      OneTimeObserver((r) => loginOnNext(r.canLoginInstantly, r.meta, r.notifiableDevices, r.challenge), loginOnError),
       phoneNumber,
     );
   }

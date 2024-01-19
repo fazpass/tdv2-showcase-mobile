@@ -17,9 +17,9 @@ class VerifyLoginPresenter extends Presenter {
   final RequestOtpUseCase _requestOtpUseCase;
   final ValidateOtpUseCase _validateOtpUseCase;
   final SendNotificationRequestUseCase _sendNotificationForLoginVerificationUseCase;
-  VerifyLoginPresenter(loginRepo)
+  VerifyLoginPresenter(loginRepo, storedDataRepo)
       : _requestOtpUseCase = RequestOtpUseCase(loginRepo),
-        _validateOtpUseCase = ValidateOtpUseCase(loginRepo),
+        _validateOtpUseCase = ValidateOtpUseCase(loginRepo, storedDataRepo),
         _sendNotificationForLoginVerificationUseCase = SendNotificationRequestUseCase(loginRepo);
 
   @override
@@ -35,10 +35,10 @@ class VerifyLoginPresenter extends Presenter {
       RequestOtpUseCaseParams(phoneNumber, meta));
   }
 
-  void validateOtp(String phoneNumber, String meta, String otpId, String otp) {
+  void validateOtp(String phoneNumber, String meta, String otpId, String otp, String challenge) {
     _validateOtpUseCase.execute(
         OneTimeObserver(validateOtpOnNext, validateOtpOnError),
-        ValidateOtpUseCaseParam(phoneNumber, meta, otpId, otp));
+        ValidateOtpUseCaseParam(phoneNumber, meta, otpId, otp, challenge));
   }
 
   void sendNotificationForLoginVerification(String phoneNumber, String meta, String selectedDevice) {

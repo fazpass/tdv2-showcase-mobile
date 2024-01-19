@@ -1,10 +1,11 @@
 
 import 'package:flutter_trusted_device_v2/flutter_trusted_device_v2.dart';
-import 'package:flutter_trusted_device_v2/src/cross_device_request.dart';
 
 abstract interface class FazpassRepository {
-  Future<void> initialize(String assetName);
-  Future<void> enableSelected(List<SensitiveData> sensitiveData);
-  Future<String> generateMeta();
+  Future<void> initialize({required String androidAssetName, required String iosAssetName, required String iosFcmAppId});
+  Future<String> generateMeta({int accountIndex=-1});
+  Future<bool> generateSecretKey();
+  Future<FazpassSettings?> getSettings({int accountIndex=-1});
+  Future<void> setSettings({int accountIndex=-1, FazpassSettings? settings});
   Stream<CrossDeviceRequest> listenToIncomingValidateNotificationRequest();
 }

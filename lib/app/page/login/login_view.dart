@@ -7,6 +7,7 @@ import 'package:tdv2_showcase_mobile/app/widget/main_text_field.dart';
 import 'package:tdv2_showcase_mobile/app/widget/primary_elevated_button.dart';
 import 'package:tdv2_showcase_mobile/data/repo/login_repository.dart';
 import 'package:tdv2_showcase_mobile/device/repo/fazpass_repository.dart';
+import 'package:tdv2_showcase_mobile/device/repo/stored_data_repository.dart';
 
 class LoginView extends View {
   const LoginView({super.key});
@@ -16,7 +17,7 @@ class LoginView extends View {
 }
 
 class LoginViewState extends ViewState<LoginView, LoginController> {
-  LoginViewState() : super(LoginController(DataLoginRepository(), DeviceFazpassRepository()));
+  LoginViewState() : super(LoginController(DataLoginRepository(), DeviceFazpassRepository(), DeviceStoredDataRepository()));
 
   final _phoneController = TextEditingController();
 

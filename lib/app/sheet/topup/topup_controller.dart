@@ -3,20 +3,24 @@ import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 
 import 'topup_presenter.dart';
 
+enum TopupControlledState {
+  validating, validateFailed, validateSuccessDeviceUntrusted,
+  validateSuccessDeviceTrusted
+}
+
 class TopupController extends Controller {
 
-  int? topupAmount;
-  int? confidenceValue;
-  String? riskLevel;
-  String? url;
-  
-  final TopupPresenter _presenter;
-  TopupController(homeRepo, fazpassRepo)
-      : _presenter = TopupPresenter(homeRepo, fazpassRepo);
+  TopupControlledState state = TopupControlledState.validating;
+  String url = '';
 
-  void validate() {
-    _presenter.validate();
-  }
+  double _confidenceValue = -1;
+
+  final TopupPresenter _presenter;
+  TopupController(homeRepo, fazpassRepo, storedDataRepo)
+      : _presenter = TopupPresenter(homeRepo, fazpassRepo, storedDataRepo);
+
+  /// Whether this device is currently trusted.
+  bool isTrusted() => _confidenceValue > 100;
 
   void onConfirmPayment() {
     Navigator.pop(getContext(), true);
@@ -26,7 +30,7 @@ class TopupController extends Controller {
   void onInitState() {
     super.onInitState();
     WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback((timeStamp) {
-      validate();
+      _presenter.validate();
     });
   }
 
@@ -34,32 +38,24 @@ class TopupController extends Controller {
   void initListeners() {
     _presenter.validateOnNext = _validateOnNext;
     _presenter.validateOnError = _validateOnError;
-    _presenter.getPaymentUrlOnNext = _getPaymentUrlOnNext;
-    _presenter.getPaymentUrlOnError = _getPaymentUrlError;
   }
 
-  _validateOnNext(int score, String riskDescription) {
-    confidenceValue = score;
-    riskLevel = riskDescription;
-    refreshUI();
+  _validateOnNext(double score, String riskDescription) {
+    _confidenceValue = score;
 
-    if (riskLevel!.toLowerCase() == 'low') _presenter.getPaymentUrl(topupAmount!);
+    if (isTrusted()) {
+      state = TopupControlledState.validateSuccessDeviceTrusted;
+      refreshUI();
+      return;
+    }
+
+    state = TopupControlledState.validateSuccessDeviceUntrusted;
+    refreshUI();
   }
 
   _validateOnError(e) {
     logger.severe(e);
-    confidenceValue = -1;
-    refreshUI();
-  }
-
-  _getPaymentUrlOnNext(String url) {
-    this.url = url;
-    refreshUI();
-  }
-
-  _getPaymentUrlError(e) {
-    logger.severe(e);
-    url = '';
+    state = TopupControlledState.validateFailed;
     refreshUI();
   }
 }

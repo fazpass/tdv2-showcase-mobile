@@ -22,17 +22,20 @@ enum APIEndpoint {
   /// Parameters:
   /// - [String] phone
   /// - [String] meta
-  enroll(url: '$_base/enroll', successCode: 200, params: ['phone', 'meta']),
+  /// - [String] challenge
+  enroll(url: '$_base/enroll', successCode: 200, params: ['phone', 'meta', 'challenge']),
   /// Parameters:
   /// - [String] phone
   /// - [String] meta
   /// - [String] fazpass_id
-  logout(url: '$_base/logout', successCode: 200, params: ['phone', 'meta', 'fazpass_id']),
+  /// - [String] challenge
+  logout(url: '$_base/logout', successCode: 200, params: ['phone', 'meta', 'fazpass_id', 'challenge']),
   /// Parameters:
   /// - [String] phone
   /// - [String] meta
   /// - [String] fazpass_id
-  validateUser(url: '$_base/validate-user', successCode: 200, params: ['phone', 'meta', 'fazpass_id']),
+  /// - [String] challenge
+  validateUser(url: '$_base/validate-user', successCode: 200, params: ['phone', 'meta', 'fazpass_id', 'challenge']),
   /// Parameters:
   /// - [String] phone
   /// - [String] meta
@@ -80,28 +83,29 @@ class HttpRequestUtil {
     final log = RequestLog(api.name);
     final uri = Uri.parse(api.url);
 
-    log.start();
+    final h = {
+      'Content-Type': 'application/json',
+      if (headers != null) ...headers!,
+    };
+    final body = jsonEncode({
+      for (var i = 0; i < api.params.length; i++)
+        api.params[i]: params[i],
+    });
+    log.start('headers:\n$h\n\nbody:\n$body');
     final response = await http.post(
       uri,
-      headers: {
-        'Content-Type': 'application/json',
-        if (headers != null) ...headers!,
-      },
-      body: jsonEncode({
-        for (var i = 0; i < api.params.length; i++)
-          api.params[i]: params[i],
-      }),
+      headers: h,
+      body: body,
     ).timeout(const Duration(seconds: 12));
 
     if (response.statusCode == api.successCode) {
-      log.stop(true);
+      log.stop(true, response.body);
       Constants.logs.add(log);
       return jsonDecode(response.body);
     }
 
-    log.stop(false);
+    log.stop(false, response.body);
     Constants.logs.add(log);
-    print(response.body);
     throw HttpException(response.body, uri: uri);
   }
 }

@@ -4,20 +4,19 @@ import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import 'package:tdv2_showcase_mobile/app/widget/payment_view.dart';
 import 'package:tdv2_showcase_mobile/data/repo/home_repository.dart';
 import 'package:tdv2_showcase_mobile/device/repo/fazpass_repository.dart';
+import 'package:tdv2_showcase_mobile/device/repo/stored_data_repository.dart';
 
 import 'topup_controller.dart';
 
 class TopupSheet extends View {
-  const TopupSheet({super.key, required this.topupAmount});
-
-  final int topupAmount;
+  const TopupSheet({super.key});
 
   @override
   State<StatefulWidget> createState() => TopupSheetState();
 }
 
 class TopupSheetState extends ViewState<TopupSheet, TopupController> {
-  TopupSheetState() : super(TopupController(DataHomeRepository(), DeviceFazpassRepository()));
+  TopupSheetState() : super(TopupController(DataHomeRepository(), DeviceFazpassRepository(), DeviceStoredDataRepository()));
 
   @override
   Widget get view => Padding(
@@ -26,26 +25,16 @@ class TopupSheetState extends ViewState<TopupSheet, TopupController> {
       key: globalKey,
       child: ControlledWidgetBuilder<TopupController>(
         builder: (context, controller) {
-          controller.topupAmount = widget.topupAmount;
-          // has loaded
-          if (controller.confidenceValue != null && controller.riskLevel != null) {
-            if (controller.riskLevel!.toLowerCase() == 'low') {
-              if (controller.url?.isNotEmpty ?? false) {
-                return PaymentView(url: controller.url!, onConfirmPayment: controller.onConfirmPayment);
-              } else if (controller.url?.isEmpty ?? false) {
-                return _errorView('Something went wrong. Please try again.');
-              } else {
-                return _loadingView('Loading payment...');
-              }
-            } else {
+          switch (controller.state) {
+            case TopupControlledState.validating:
+              return _loadingView('Validating...');
+            case TopupControlledState.validateFailed:
+              return _errorView('Something went wrong. Please check your internet connection.');
+            case TopupControlledState.validateSuccessDeviceUntrusted:
               return _errorView('It looks like your device isn\'t trusted enough. :)');
-            }
-          } else if (controller.confidenceValue == -1) {
-            return _errorView('Something went wrong. Please check your internet connection.');
+            case TopupControlledState.validateSuccessDeviceTrusted:
+              return PaymentView(url: controller.url, onConfirmPayment: controller.onConfirmPayment);
           }
-
-          // still loading
-          return _loadingView('Validating...');
         },
       ),
     ),

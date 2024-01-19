@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import 'package:flutter_trusted_device_v2/flutter_trusted_device_v2.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:tdv2_showcase_mobile/app/page/login/login_presenter.dart';
 import 'package:tdv2_showcase_mobile/app/router.dart';
 import 'package:tdv2_showcase_mobile/app/sheet/verify_login/verify_login_view.dart';
@@ -15,8 +14,8 @@ class LoginController extends Controller {
   String? _tempPhoneNumber;
   
   final LoginPresenter _presenter;
-  LoginController(loginRepo, fazpassRepo)
-      : _presenter = LoginPresenter(loginRepo, fazpassRepo);
+  LoginController(loginRepo, fazpassRepo, storedDataRepo)
+      : _presenter = LoginPresenter(loginRepo, fazpassRepo, storedDataRepo);
 
   void login(String phoneNumber) {
     isLoading = true;
@@ -37,15 +36,11 @@ class LoginController extends Controller {
   void onInitState() {
     super.onInitState();
     WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback((timeStamp) {
-      _presenter.initialize('tdv2_showcase_public.pub', [
-        SensitiveData.location,
-        SensitiveData.simNumbersAndOperators,
-      ]);
-
-      [
-        Permission.location,
-        Permission.phone,
-      ].request();
+      _presenter.initialize(
+        'tdv2_showcase_public.pub',
+        'tdv2_showcase_public.pub',
+        '1:762638394860:ios:19b19305e8ae6a4dc90cc9'
+      );
     });
   }
 
@@ -65,14 +60,14 @@ class LoginController extends Controller {
     throw e;
   }
 
-  _loginOnNext(bool canLoginInstantly, String meta, List<NotifiableDevice> notifiableDevices) {
+  _loginOnNext(bool canLoginInstantly, String meta, List<NotifiableDevice> notifiableDevices, String challenge) {
     isLoading = false;
     refreshUI();
 
     if (canLoginInstantly) {
       _navigateToHome();
     } else {
-      _showVerifyLoginSheet(meta, notifiableDevices);
+      _showVerifyLoginSheet(meta, notifiableDevices, challenge);
     }
   }
 
@@ -121,17 +116,22 @@ class LoginController extends Controller {
           content: Text('There seems to be a problem in the server, please try again later.'),
         ),
       );
-
-      throw e;
     }
+
+    throw e;
   }
 
-  void _showVerifyLoginSheet(String meta, List<NotifiableDevice> notifiableDevices) async {
+  void _showVerifyLoginSheet(String meta, List<NotifiableDevice> notifiableDevices, String challenge) async {
     final phoneNumber = '$_tempPhoneNumber';
     final isSuccess = await showModalBottomSheet<bool>(
       context: getContext(),
       showDragHandle: true,
-      builder: (c) => VerifyLoginSheet(meta: meta, phoneNumber: phoneNumber, notifiableDevices: notifiableDevices),
+      builder: (c) => VerifyLoginSheet(
+        meta: meta,
+        phoneNumber: phoneNumber,
+        notifiableDevices: notifiableDevices,
+        challenge: challenge,
+      ),
     );
 
     _tempPhoneNumber = null;

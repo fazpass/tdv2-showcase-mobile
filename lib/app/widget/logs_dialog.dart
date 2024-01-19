@@ -14,7 +14,59 @@ class LogsDialog extends StatelessWidget {
         children: [
           for (final item in Constants.logs) ListTile(
             title: Text(item.name),
-            subtitle: Text('${(item.status ?? false) ? 'Success' : 'Failed'} in ${item.readableDuration}'),
+            subtitle: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text('${(item.status) ? 'Success' : 'Failed'} in ${item.readableDuration}'),
+                const SizedBox(height: 5),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                          shape: const MaterialStatePropertyAll(RoundedRectangleBorder()),
+                          padding: const MaterialStatePropertyAll(EdgeInsets.zero),
+                          backgroundColor: MaterialStatePropertyAll(Colors.blue[700]),
+                          foregroundColor: const MaterialStatePropertyAll(Colors.white),
+                        ),
+                        onPressed: () => showDialog(
+                          context: context,
+                          builder: (c) => AlertDialog(
+                            title: const Text('Parameters'),
+                            content: Text(item.parameters),
+                            scrollable: true,
+                          ),
+                        ),
+                        child: const Text('Parameters'),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                          shape: const MaterialStatePropertyAll(RoundedRectangleBorder()),
+                          padding: const MaterialStatePropertyAll(EdgeInsets.zero),
+                          backgroundColor: MaterialStatePropertyAll(Colors.blue[700]),
+                          foregroundColor: const MaterialStatePropertyAll(Colors.white),
+                        ),
+                        onPressed: () => showDialog(
+                          context: context,
+                          builder: (c) => AlertDialog(
+                            title: const Text('Response'),
+                            content: Text(item.response),
+                            scrollable: true,
+                          ),
+                        ),
+                        child: const Text('Response'),
+                      ),
+                    ),
+                  ],
+                ),
+                const Divider(),
+              ],
+            ),
           ),
         ],
       ),
