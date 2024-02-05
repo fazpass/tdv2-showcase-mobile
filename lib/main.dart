@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:newrelic_mobile/config.dart';
@@ -8,7 +9,9 @@ import 'package:newrelic_mobile/newrelic_mobile.dart';
 
 
 void main() {
-  const newRelicToken = "AA3e24ea131fd2820857b681c3961dda66142706d3-NRMA";
+  final String newRelicToken = (Platform.isAndroid)
+      ? 'AA3e24ea131fd2820857b681c3961dda66142706d3-NRMA'
+      : 'AA5b723f11e13055919bd792316aee153a6fe1bd91-NRMA';
 
   Config config = Config(accessToken: newRelicToken,
     // Optional: Enable or disable collection of event data.

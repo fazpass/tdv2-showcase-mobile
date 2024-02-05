@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import 'package:flutter_trusted_device_v2/flutter_trusted_device_v2.dart';
 import 'package:tdv2_showcase_mobile/domain/repo/fazpass_repository.dart';

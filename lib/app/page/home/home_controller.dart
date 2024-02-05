@@ -153,7 +153,7 @@ class HomeController extends Controller {
       context: getContext(),
       builder: (c) => AlertDialog(
         title: const Text('Verify Login'),
-        content: Text('Device "${requesterDeviceInfo.split('/').getRange(0, 2).join(', ')}" wants to '
+        content: Text('Device "${requesterDeviceInfo.split(';').getRange(0, 2).join(', ')}" wants to '
             'login with your account. Accept it?'),
         actions: [
           TextButton(onPressed: () => respondToLoginRequest(c, receiverId, true), child: const Text('Accept')),
