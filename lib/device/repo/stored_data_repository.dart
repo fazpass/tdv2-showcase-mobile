@@ -17,9 +17,12 @@ class DeviceStoredDataRepository implements StoredDataRepository {
   const DeviceStoredDataRepository._internal();
   factory DeviceStoredDataRepository() => _instance;
 
+  Future<SharedPreferences> getPreferences() =>
+      SharedPreferences.getInstance();
+
   @override
   Future<bool> saveLoginDetail(String phone, String fazpassId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await getPreferences();
     final accountIndex = await saveAccount(phone);
 
     final tasks = [
@@ -33,7 +36,7 @@ class DeviceStoredDataRepository implements StoredDataRepository {
 
   @override
   Future<LoginDetail?> getCurrentLoginDetail() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await getPreferences();
 
     if (prefs.getBool(keyIsLoggedIn) != true) return null;
 
@@ -55,7 +58,7 @@ class DeviceStoredDataRepository implements StoredDataRepository {
 
   @override
   Future<bool> removeCurrentLoginDetail() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await getPreferences();
 
     final tasks = [
       await prefs.remove(keyPhone),
@@ -69,7 +72,7 @@ class DeviceStoredDataRepository implements StoredDataRepository {
 
   @override
   Future<bool> isCurrentLoginSetWithHighBiometricLevel() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await getPreferences();
 
     if (prefs.getBool(keyIsLoggedIn) != true) throw NotLoggedInException();
 
@@ -84,7 +87,7 @@ class DeviceStoredDataRepository implements StoredDataRepository {
     if (!accounts.contains(phone)) {
       accounts.add(phone);
 
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await getPreferences();
       prefs.setStringList(keyAccountList, accounts);
     }
     return accounts.indexOf(phone);
@@ -92,7 +95,7 @@ class DeviceStoredDataRepository implements StoredDataRepository {
 
   @override
   Future<List<String>> getAccounts() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getStringList(keyAccountList) ?? [];
+    final prefs = await getPreferences();
+    return [...?prefs.getStringList(keyAccountList)];
   }
 }

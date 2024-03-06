@@ -1,5 +1,6 @@
 import UIKit
 import Flutter
+import ios_trusted_device_v2
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -10,4 +11,9 @@ import Flutter
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
+    
+    override func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        Fazpass.shared.getCrossDeviceRequestFromNotification(userInfo: userInfo)
+        completionHandler(UIBackgroundFetchResult.newData)
+    }
 }

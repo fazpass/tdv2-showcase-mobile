@@ -4,12 +4,18 @@ import 'package:tdv2_showcase_mobile/domain/repo/fazpass_repository.dart';
 import 'package:tdv2_showcase_mobile/domain/repo/login_repository.dart';
 
 class InitializeAppUseCase extends OneTimeUseCase<bool, InitializeAppUseCaseParams> {
+
+  static var hasInitialized = false;
+
   InitializeAppUseCase(LoginRepository loginRepo, FazpassRepository fazpassRepo)
       : super((params) async {
-        await fazpassRepo.initialize(
-            androidAssetName: params!.androidAssetName,
-            iosAssetName: params.iosAssetName,
-            iosFcmAppId: params.iosFcmAppId);
+        if (!hasInitialized) {
+          await fazpassRepo.initialize(
+              androidAssetName: params!.androidAssetName,
+              iosAssetName: params.iosAssetName,
+              iosFcmAppId: params.iosFcmAppId);
+          hasInitialized = true;
+        }
         return await loginRepo.isLoggedIn();
       });
 }

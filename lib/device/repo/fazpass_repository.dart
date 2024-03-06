@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter_trusted_device_v2/flutter_trusted_device_v2.dart';
+import 'package:mockito/annotations.dart';
 import 'package:tdv2_showcase_mobile/domain/repo/fazpass_repository.dart';
 
 class DeviceFazpassRepository implements FazpassRepository {
@@ -22,18 +23,18 @@ class DeviceFazpassRepository implements FazpassRepository {
 
   @override
   Future<bool> generateSecretKey() async {
-    await Fazpass.instance.generateSecretKeyForHighLevelBiometric();
+    await Fazpass.instance.generateNewSecretKey();
     return true;
   }
 
   @override
   Future<FazpassSettings?> getSettings({int accountIndex=-1}) async {
-    return Fazpass.instance.getSettingsForAccountIndex(accountIndex);
+    return Fazpass.instance.getSettings(accountIndex);
   }
 
   @override
   Future<void> setSettings({int accountIndex=-1, FazpassSettings? settings}) async {
-    return Fazpass.instance.setSettingsForAccountIndex(accountIndex, settings);
+    return Fazpass.instance.setSettings(accountIndex, settings);
   }
 
   @override

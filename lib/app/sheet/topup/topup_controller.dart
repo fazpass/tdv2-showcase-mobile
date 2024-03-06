@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
+import 'package:tdv2_showcase_mobile/exception.dart';
 
 import 'topup_presenter.dart';
 
 enum TopupControlledState {
   validating, validateFailed, validateSuccessDeviceUntrusted,
-  validateSuccessDeviceTrusted
+  validateSuccessDeviceTrusted, sessionExpired
 }
 
 class TopupController extends Controller {
@@ -54,8 +55,13 @@ class TopupController extends Controller {
   }
 
   _validateOnError(e) {
-    logger.severe(e);
-    state = TopupControlledState.validateFailed;
+    print(e);
+
+    if (e is CheckFailedException) {
+      state = TopupControlledState.sessionExpired;
+    } else {
+      state = TopupControlledState.validateFailed;
+    }
     refreshUI();
   }
 }

@@ -23,9 +23,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
   @override
   void initState() {
     super.initState();
-    locationEnabled = widget.builder.sensitiveDataList.contains(SensitiveData.location);
-    simInformationEnabled = widget.builder.sensitiveDataList.contains(SensitiveData.simNumbersAndOperators);
-    vpnEnabled = widget.builder.sensitiveDataList.contains(SensitiveData.vpn);
+    locationEnabled = widget.builder.sensitiveData.contains(SensitiveData.location);
+    simInformationEnabled = widget.builder.sensitiveData.contains(SensitiveData.simNumbersAndOperators);
+    vpnEnabled = widget.builder.sensitiveData.contains(SensitiveData.vpn);
     highLevelBiometricEnabled = widget.builder.isBiometricLevelHigh;
   }
 

@@ -34,6 +34,8 @@ class TopupSheetState extends ViewState<TopupSheet, TopupController> {
               return _errorView('It looks like your device isn\'t trusted enough. :)');
             case TopupControlledState.validateSuccessDeviceTrusted:
               return PaymentView(url: controller.url, onConfirmPayment: controller.onConfirmPayment);
+            case TopupControlledState.sessionExpired:
+              return _errorView('Your session has expired. Please login again.');
           }
         },
       ),

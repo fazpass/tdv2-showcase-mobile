@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -96,7 +97,14 @@ class HttpRequestUtil {
       uri,
       headers: h,
       body: body,
-    ).timeout(const Duration(seconds: 12));
+    ).timeout(
+      const Duration(seconds: 12),
+      onTimeout: () {
+        log.stop(false, 'Request Timeout');
+        Constants.logs.add(log);
+        throw TimeoutException('Request Takes too long to respond.');
+      },
+    );
 
     if (response.statusCode == api.successCode) {
       log.stop(true, response.body);
