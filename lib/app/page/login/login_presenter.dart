@@ -24,11 +24,8 @@ class LoginPresenter extends Presenter {
     _initializeUseCase.dispose();
   }
 
-  void initialize(String androidAssetName, String iosAssetName, String iosFcmAppId) {
-    _initializeUseCase.execute(
-      OneTimeObserver(initializeOnNext, initializeOnError),
-      InitializeAppUseCaseParams(androidAssetName, iosAssetName, iosFcmAppId),
-    );
+  void initialize() {
+    _initializeUseCase.execute(OneTimeObserver(initializeOnNext, initializeOnError));
   }
 
   void login(String phoneNumber) {

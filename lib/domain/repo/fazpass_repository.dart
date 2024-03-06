@@ -2,7 +2,7 @@
 import 'package:flutter_trusted_device_v2/flutter_trusted_device_v2.dart';
 
 abstract interface class FazpassRepository {
-  Future<void> initialize({required String androidAssetName, required String iosAssetName, required String iosFcmAppId});
+  Future<void> initialize();
   Future<String> generateMeta({int accountIndex=-1});
   Future<bool> generateSecretKey();
   Future<FazpassSettings?> getSettings({int accountIndex=-1});

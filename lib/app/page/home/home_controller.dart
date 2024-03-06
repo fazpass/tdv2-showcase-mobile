@@ -47,7 +47,7 @@ class HomeController extends Controller {
     }
   }
 
-  void settings() async {
+  void openSettings() async {
     final builder = fazpassSettings != null
         ? FazpassSettingsBuilder.fromFazpassSettings(fazpassSettings!)
         : FazpassSettingsBuilder();

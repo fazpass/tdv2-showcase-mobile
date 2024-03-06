@@ -36,11 +36,7 @@ class LoginController extends Controller {
   void onInitState() {
     super.onInitState();
     WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback((timeStamp) {
-      _presenter.initialize(
-        'tdv2_showcase_public.pub',
-        'tdv2_showcase_public.pub',
-        '1:762638394860:ios:19b19305e8ae6a4dc90cc9'
-      );
+      _presenter.initialize();
     });
   }
 
@@ -80,8 +76,7 @@ class LoginController extends Controller {
       String message;
       switch (e) {
         case BiometricNoneEnrolledError():
-          message = 'You have to enroll '
-              'biometric or device passcode '
+          message = 'You have to enroll biometric or device passcode '
               'on your phone to continue.';
           break;
         case BiometricUnavailableError():
@@ -108,7 +103,6 @@ class LoginController extends Controller {
         ),
       );
     } else {
-      print(e);
       showDialog(
         context: getContext(),
         builder: (c) => const AlertDialog(
@@ -116,9 +110,10 @@ class LoginController extends Controller {
           content: Text('There seems to be a problem in the server, please try again later.'),
         ),
       );
-    }
 
-    throw e;
+      // throw unknown error to main thread and let newrelic catch it
+      throw e;
+    }
   }
 
   void _showVerifyLoginSheet(String meta, List<NotifiableDevice> notifiableDevices, String challenge) async {
@@ -135,9 +130,12 @@ class LoginController extends Controller {
     );
 
     _tempPhoneNumber = null;
-    if (isSuccess == true) {
+
+    if (isSuccess == null) return;
+
+    if (isSuccess) {
       _navigateToHome();
-    } else if (isSuccess == false) {
+    } else {
       showDialog(
         context: getContext(),
         builder: (c) => const AlertDialog(

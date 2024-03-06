@@ -2,7 +2,6 @@
 import 'dart:async';
 
 import 'package:flutter_trusted_device_v2/flutter_trusted_device_v2.dart';
-import 'package:mockito/annotations.dart';
 import 'package:tdv2_showcase_mobile/domain/repo/fazpass_repository.dart';
 
 class DeviceFazpassRepository implements FazpassRepository {
@@ -12,8 +11,12 @@ class DeviceFazpassRepository implements FazpassRepository {
   factory DeviceFazpassRepository() => _instance;
 
   @override
-  Future<void> initialize({required String androidAssetName, required String iosAssetName, required String iosFcmAppId}) async {
-    await Fazpass.instance.init(androidAssetName: androidAssetName, iosAssetName: iosAssetName, iosFcmAppId: iosFcmAppId);
+  Future<void> initialize() async {
+    await Fazpass.instance.init(
+        androidAssetName: 'new-public-key.pub',
+        iosAssetName: 'tdv2_showcase_public.pub',
+        iosFcmAppId: '1:762638394860:ios:19b19305e8ae6a4dc90cc9'
+    );
   }
 
   @override
