@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_trusted_device_v2/flutter_trusted_device_v2.dart';
 import 'package:newrelic_mobile/config.dart';
 import 'package:newrelic_mobile/newrelic_navigation_observer.dart';
 import 'package:tdv2_showcase_mobile/app/router.dart';
@@ -51,6 +52,7 @@ class MyApp extends StatelessWidget with MyTheme {
 
   @override
   Widget build(BuildContext context) {
+    Fazpass.instance.getAppSignatures().then((value) => print('APPSGN: $value'));
     return MaterialApp(
       title: 'Trusted Device V2 Showcase',
       theme: ThemeData(
